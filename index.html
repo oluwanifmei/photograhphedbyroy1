@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Professional photography portfolio featuring portrait, travel, and editorial work. Book your photoshoot today." />
+  <meta name="theme-color" content="#080b13" />
+  <meta property="og:title" content="PHOTOGRAPHED BY ROY - Professional Photography Portfolio" />
+  <meta property="og:description"
+    content="Capture every moment with bold, cinematic imagery. Professional photography for weddings, portraits, lifestyle, travel, and commercial work." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://photographedbyroy.com/og-image.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <title>PHOTOGRAHED BY ROY</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles-new.css" />
+  <link rel="icon" type="image/svg+xml"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'><rect width='120' height='120' fill='%23080b13'/><circle cx='60' cy='60' r='44' fill='%23f4f7ff'/><text x='50%' y='57%' dominant-baseline='middle' text-anchor='middle' font-family='Cormorant Garamond,serif' font-size='58' font-weight='700' fill='%23080b13'>R</text></svg>">
+  <link rel="mask-icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'><circle cx='60' cy='60' r='44' fill='%23ffffff'/><text x='50%' y='57%' dominant-baseline='middle' text-anchor='middle' font-family='Cormorant Garamond,serif' font-size='58' font-weight='700' fill='%23080b13'>R</text></svg>"
+    color="#080b13">
+  <link rel="apple-touch-icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'><rect width='120' height='120' fill='%23080b13'/><circle cx='60' cy='60' r='44' fill='%23f4f7ff'/><text x='50%' y='57%' dominant-baseline='middle' text-anchor='middle' font-family='Cormorant Garamond,serif' font-size='58' font-weight='700' fill='%23080b13'>R</text></svg>">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "PHOTOGRAPHED BY ROY",
+    "description": "Professional Photography Services",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Lagos",
+      "addressCountry": "NG"
+    },
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+234 (0) 902 580 3917",
+      "contactType": "Customer Service"
+    },
+    "url": "https://photographedbyroy.com"
+  }
+  </script>
+</head>
+
+<body id="top">
+  <div id="siteLoader" class="site-loader" aria-hidden="true">
+    <div class="site-loader-inner">
+      <div class="site-loader-rim" aria-hidden="true"></div>
+      <div class="site-loader-mark" aria-label="R camera logo">
+        <span class="mark-r">R</span>
+      </div>
+      <div class="site-loader-wordmark" aria-label="PHOTOGRAPHED BY ROY">
+        <span class="site-loader-line">PHOTOGRAPHED</span>
+        <span class="site-loader-line site-loader-line--accent">BY ROY</span>
+      </div>
+    </div>
+  </div>
+  <div id="introOverlay" class="intro-overlay" aria-hidden="true">
+    <div class="intro-overlay-card" role="dialog" aria-modal="true" aria-label="Introduction">
+      <button class="intro-close" id="introClose" aria-label="Close introduction">×</button>
+      <img class="intro-photo-lg" src="images/ME.jpg" alt="Oluwanifemi" onerror="this.src='images/placeholder.svg'" />
+      <div class="intro-content">
+        <h2>Hello — I'm <strong>Oluwanifemi</strong></h2>
+        <p class="intro-sub">Also known as <strong>PHOTOGRAPHED BY ROY</strong>. I create cinematic portraits and visual
+          stories.</p>
+        <label class="intro-dontshow"><input type="checkbox" id="dontShowIntro"> Don't show again</label>
+      </div>
+    </div>
+  </div>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <img src="LOGO.jpeg" style="width: 52px; height:auto;" alt="Roy's Lens logo" class="site-logo" />
+      <a class="brand" href="#" data-page="home">
+        <span class="brand-mark" aria-hidden="true">R</span>
+        <span class="brand-text">PHOTOGRAPHED BY ROY</span>
+      </a>
+      <nav class="site-nav" aria-label="Primary navigation">
+        <a href="#" data-page="home">Home</a>
+        <a href="#" data-page="gallery">Gallery</a>
+        <a href="#" data-page="services">Services</a>
+        <a href="#" data-page="before-after">Before & After</a>
+        <a href="#" data-page="blog">Blog</a>
+        <a href="#" data-page="booking">Booking</a>
+        <a href="#" data-page="about">About</a>
+        <a href="#" data-page="contact">Contact</a>
+      </nav>
+      <div class="header-actions">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"
+          title="Toggle light/dark mode">🌙</button>
+        <div class="account-dropdown" id="accountDropdown">
+          <button class="account-btn" id="accountBtn" aria-label="Account menu" aria-expanded="false">
+            <svg class="account-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </button>
+          <div class="account-menu" id="accountMenu" aria-hidden="true">
+            <!-- Populated dynamically by script.js -->
+          </div>
+        </div>
+        <button class="nav-toggle" aria-label="Open navigation menu" aria-expanded="false">
+          <span class="nav-toggle__icon" aria-hidden="true"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="booking-banner" id="bookingBanner">
+    <div class="container booking-banner-inner">
+      <span class="banner-copy"><strong>NOW BOOKING</strong> — AUGUST / SEPTEMBER 2026 · LAGOS → <a href="#"
+          data-page="booking">CHECK AVAILABILITY</a></span>
+      <button class="banner-close" id="bookingBannerClose" aria-label="Dismiss booking announcement">×</button>
+    </div>
+  </div>
+
+  <main>
+    <!-- HOME PAGE -->
+    <section id="page-home" class="page active">
+      <!-- CINEMATIC HERO VIDEO SECTION -->
+      <section class="cinematic-hero">
+        <video class="hero-video" autoplay muted loop playsinline>
+          <source src="videos/cinematic-hero.mp4" type="video/mp4">
+          <source src="videos/cinematic-hero.webm" type="video/webm">
+        </video>
+
+        <div class="hero-video-fallback" style="background-image: url('dara\ crop.jpeg');"></div>
+
+        <div class="hero-overlay"></div>
+
+        <div class="cinematic-content">
+          <div class="hero-copy-cinematic">
+            <p class="eyebrow-cinema">Photography Portfolio</p>
+            <h1 class="cinematic-title">
+              <span class="title-word">Capture</span>
+              <span class="title-word">every</span>
+              <span class="title-word">moment</span>
+              <br>
+              <span class="title-highlight">with bold, cinematic imagery</span>
+            </h1>
+            <p class="cinematic-subtitle">From breathtaking landscapes to intimate portraits — we create visual stories
+              that transcend moments and tell timeless tales.</p>
+            <div class="hero-actions-cinema">
+              <a class="button button-primary glow-effect" href="#" data-page="gallery">Explore Gallery</a>
+              <a class="button button-secondary" href="#" data-page="booking">Book Your Session</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="scroll-indicator">
+          <span class="scroll-dot"></span>
+          <p>Scroll to explore</p>
+        </div>
+      </section>
+
+      <!-- Hero Image Section -->
+      <section class="hero-image-section">
+        <div class="hero-image-wrapper">
+          <img src="ClientDara.jpeg" alt="Beauty in Photography" class="hero-image"
+            onerror="this.src='images/placeholder.svg'" />
+          <div class="image-overlay"></div>
+          <div class="image-quote">
+            <p class="quote-text">"Beauty is not about what you look like, it's about how you feel and the moments you
+              capture that last forever."</p>
+            <p class="quote-author">— Photographed by Roy</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Quick Stats Section -->
+      <section class="quick-stats">
+        <div class="container">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-number">3+</div>
+              <div class="stat-label">Years Experience</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">100+</div>
+              <div class="stat-label">Projects Completed</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">100%</div>
+              <div class="stat-label">Client Satisfaction</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">5★</div>
+              <div class="stat-label">Average Rating</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Featured Services Quick Links -->
+      <section class="featured-services">
+        <div class="container section-header">
+          <p class="eyebrow">What I Offer</p>
+          <h2>Professional photography for every occasion.</h2>
+        </div>
+        <div class="services-preview">
+          <div class="service-preview-card">
+            <div class="preview-icon">📸</div>
+            <h3>Portraits</h3>
+            <p>Professional portrait sessions with premium editing</p>
+          </div>
+          <div class="service-preview-card">
+            <div class="preview-icon">💒</div>
+            <h3>Weddings</h3>
+            <p>Complete wedding coverage with cinematic quality</p>
+          </div>
+          <div class="service-preview-card">
+            <div class="preview-icon">🎉</div>
+            <h3>Events</h3>
+            <p>Capture every moment of your special events</p>
+          </div>
+          <div class="service-preview-card">
+            <div class="preview-icon">👗</div>
+            <h3>Fashion</h3>
+            <p>High-fashion photography & editorial work</p>
+          </div>
+        </div>
+        <div style="text-align: center; margin-top: 2rem;">
+          <a class="button button-primary" href="#" data-page="services">View All Services</a>
+        </div>
+      </section>
+
+      <section class="featured-story">
+        <div class="container section-header">
+          <p class="eyebrow">Featured Collections</p>
+          <h2>Curated stories that feel cinematic and unforgettable.</h2>
+          <p class="section-copy">Each collection is designed with rich lighting, precise composition, and intentional
+            storytelling so your memories look polished and timeless.</p>
+        </div>
+        <div class="container highlights-grid">
+          <article class="highlight-card">
+            <div class="highlight-badge">Wedding Story</div>
+            <h3>Golden Vows</h3>
+            <p>Elegant wedding imagery with cinematic moments, emotional details, and editorial styling.</p>
+          </article>
+          <article class="highlight-card">
+            <div class="highlight-badge">Portrait Narrative</div>
+            <h3>Personal Identity</h3>
+            <p>Styled portrait sessions that capture mood, personality, and a bold visual signature.</p>
+          </article>
+          <article class="highlight-card">
+            <div class="highlight-badge">Travel & Lifestyle</div>
+            <h3>Destination Stories</h3>
+            <p>Location shoots with atmospheric light, natural movement, and memorable environment-driven frames.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="testimonial-section">
+        <div class="container section-header">
+          <p class="eyebrow">Client Love</p>
+          <h2>People trust their most important moments to this craft.</h2>
+        </div>
+        <div class="container testimonials-grid">
+          <article class="testimonial-card">
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-text">"Roy made our wedding feel like a feature film. Every photo is a beautiful
+              memory we can relive forever."</p>
+            <p class="testimonial-author">Blessing & Michael</p>
+            <p class="testimonial-type">Wedding Photography</p>
+          </article>
+          <article class="testimonial-card">
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-text">"The portrait session was effortless and the final gallery captured my
+              personality perfectly."</p>
+            <p class="testimonial-author">Damola N.</p>
+            <p class="testimonial-type">Portrait Session</p>
+          </article>
+          <article class="testimonial-card">
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-text">"From pre-shoot planning to delivery, the process was smooth and professional. I
+              love every image."</p>
+            <p class="testimonial-author">Emeka O.</p>
+            <p class="testimonial-type">Editorial Campaign</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="process-section">
+        <div class="container section-header">
+          <p class="eyebrow">The Roy Experience</p>
+          <h2>Your journey from first call to final gallery, designed to feel cinematic and effortless.</h2>
+          <p class="section-copy">This is more than shooting photos. It’s a creative collaboration built around how you
+            want to look, feel, and be remembered.</p>
+        </div>
+        <div class="container experience-grid">
+          <article class="experience-step">
+            <div class="experience-step-media" style="background-image: url('ClientDara.jpeg');"></div>
+            <div class="experience-step-copy">
+              <div class="experience-step-meta">
+                <span class="experience-step-index">01</span>
+                <span class="experience-step-label">We Talk</span>
+              </div>
+              <h3>Tell me the feeling, mood and story you want.</h3>
+              <p>We begin with a relaxed conversation so your vision, personality, and priorities come through clearly.
+              </p>
+            </div>
+          </article>
+          <article class="experience-step">
+            <div class="experience-step-media" style="background-image: url('DARA.jpeg');"></div>
+            <div class="experience-step-copy">
+              <div class="experience-step-meta">
+                <span class="experience-step-index">02</span>
+                <span class="experience-step-label">We Build the Vision</span>
+              </div>
+              <h3>Location, outfit, moodboard, lighting and creative direction.</h3>
+              <p>We make the session feel effortless by planning every detail with your story, style, and confidence in
+                mind.</p>
+            </div>
+          </article>
+          <article class="experience-step">
+            <div class="experience-step-media" style="background-image: url('dara crop.jpeg');"></div>
+            <div class="experience-step-copy">
+              <div class="experience-step-meta">
+                <span class="experience-step-index">03</span>
+                <span class="experience-step-label">We Create</span>
+              </div>
+              <h3>No awkward posing. I guide you through the session.</h3>
+              <p>On shoot day, the focus is on comfort, movement and real moments so the images feel natural and
+                cinematic.</p>
+            </div>
+          </article>
+          <article class="experience-step">
+            <div class="experience-step-media" style="background-image: url('images/ME.jpg');"></div>
+            <div class="experience-step-copy">
+              <div class="experience-step-meta">
+                <span class="experience-step-index">04</span>
+                <span class="experience-step-label">The Roy Treatment</span>
+              </div>
+              <h3>Selection, colour work, retouching and cinematic finishing.</h3>
+              <p>I polish the full story with intentional edits, mood, and cinematic colour that suit your vision.</p>
+            </div>
+          </article>
+          <article class="experience-step">
+            <div class="experience-step-media" style="background-image: url('My%20webproject/oyinnn.jpg');"></div>
+            <div class="experience-step-copy">
+              <div class="experience-step-meta">
+                <span class="experience-step-index">05</span>
+                <span class="experience-step-label">Your Story Arrives</span>
+              </div>
+              <h3>Private gallery, downloads, prints and albums where applicable.</h3>
+              <p>Your finished images are delivered beautifully, curated for the story and the way you want to share it.
+              </p>
+            </div>
+          </article>
+        </div>
+        <div class="container process-cta">
+          <a class="button button-primary button-with-icon" href="#" data-page="booking"
+            title="Book the Roy Experience">
+            Book the Roy Experience
+            <span class="button-icon">📅</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="faq-section">
+        <div class="container section-header">
+          <p class="eyebrow">Frequently Asked Questions</p>
+          <h2>Know what to expect before booking.</h2>
+          <p>Answers to the most common questions about deposits, scheduling, editing, and delivery.</p>
+        </div>
+        <div class="container faq-grid">
+          <div class="faq-intro">
+            <p class="eyebrow">Booking clarity</p>
+            <h2>Everything you need to know before your session.</h2>
+            <p>Plan with confidence. Find clear details for deposits, schedules, editing timelines, and package
+              inclusions.</p>
+            <a href="#" data-page="booking" class="button button-secondary">Request a Booking</a>
+          </div>
+          <div class="faq-list">
+            <article class="faq-item open">
+              <button type="button" class="faq-question">
+                <span>Is my date confirmed after submitting the form?</span>
+                <span class="faq-toggle">−</span>
+              </button>
+              <div class="faq-answer">
+                <p>Your requested date is held as an inquiry until Roy reviews your details. Confirmation is sent in
+                  writing after availability and terms are agreed.</p>
+              </div>
+            </article>
+            <article class="faq-item">
+              <button type="button" class="faq-question">
+                <span>How much is the deposit?</span>
+                <span class="faq-toggle">+</span>
+              </button>
+              <div class="faq-answer">
+                <p>The deposit depends on the package. A personalized quote is provided before payment, and no payment
+                  is requested until the booking is confirmed.</p>
+              </div>
+            </article>
+            <article class="faq-item">
+              <button type="button" class="faq-question">
+                <span>How long does editing and delivery take?</span>
+                <span class="faq-toggle">+</span>
+              </button>
+              <div class="faq-answer">
+                <p>Delivery times vary by session type and package. Estimated timelines are shared during booking so you
+                  always know when to expect your final gallery.</p>
+              </div>
+            </article>
+            <article class="faq-item">
+              <button type="button" class="faq-question">
+                <span>Are studio, makeup and travel included?</span>
+                <span class="faq-toggle">+</span>
+              </button>
+              <div class="faq-answer">
+                <p>Only services listed in the confirmed quote are included. Studio hire, makeup, travel, and extra
+                  hours can be added on request.</p>
+              </div>
+            </article>
+            <article class="faq-item">
+              <button type="button" class="faq-question">
+                <span>Will I receive RAW photographs?</span>
+                <span class="faq-toggle">+</span>
+              </button>
+              <div class="faq-answer">
+                <p>Final delivery focuses on edited images. RAW files are available by request and will be agreed on as
+                  part of your booking package.</p>
+              </div>
+            </article>
+            <article class="faq-item">
+              <button type="button" class="faq-question">
+                <span>Can I reschedule or cancel?</span>
+                <span class="faq-toggle">+</span>
+              </button>
+              <div class="faq-answer">
+                <p>Rescheduling and cancellation policies are included in the booking agreement. Requests should be made
+                  early to avoid extra fees.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+    </section>
+    </section>
+
+    <!-- GALLERY PAGE -->
+    <section id="page-gallery" class="page">
+      <div class="page-header">
+        <div class="container section-header">
+          <p class="eyebrow">Portfolio</p>
+          <h1>My Work</h1>
+          <p>A collection of my best work across different categories.</p>
+        </div>
+      </div>
+
+      <div class="container gallery-filters">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="portraits">Portraits</button>
+        <button class="filter-btn" data-filter="weddings">Weddings</button>
+        <button class="filter-btn" data-filter="birthday">Birthday</button>
+        <button class="filter-btn" data-filter="fashion">Fashion</button>
+        <button class="filter-btn" data-filter="events">Events</button>
+        <button class="filter-btn" data-filter="street">Street</button>
+        <button class="filter-btn" data-filter="nature">Nature</button>
+      </div>
+
+      <div class="container">
+        <div class="gallery-grid" id="galleryGrid"></div>
+      </div>
+    </section>
+
+    <!-- SERVICES PAGE -->
+    <section id="page-services" class="page">
+      <div class="page-header">
+        <div class="container section-header">
+          <p class="eyebrow">Services</p>
+          <h1>Photography Packages</h1>
+          <p>Professional services tailored to your needs.</p>
+        </div>
+      </div>
+
+      <div class="container">
+        <div class="services-grid">
+          <div class="service-card">
+            <div class="service-icon">📸</div>
+            <h3>Portrait Session</h3>
+            <p class="service-price">₦50,000</p>
+            <ul class="service-features">
+              <li>2 hours session</li>
+              <li>Location of choice</li>
+              <li>50+ edited photos</li>
+              <li>Digital download</li>
+            </ul>
+            <a href="#" data-page="booking" class="button button-secondary">Book Now</a>
+          </div>
+          <div class="service-card featured">
+            <div class="service-icon">💒</div>
+            <h3>Wedding Photography</h3>
+            <p class="service-price">₦150,000+</p>
+            <ul class="service-features">
+              <li>8-12 hours coverage</li>
+              <li>2 photographers</li>
+              <li>50+ edited photos</li>
+              <li>Album + digital copies</li>
+            </ul>
+            <a href="#" data-page="booking" class="button button-primary">Book Now</a>
+          </div>
+          <div class="service-card">
+            <div class="service-icon">🎉</div>
+            <h3>Event Coverage</h3>
+            <p class="service-price">₦100,000</p>
+            <ul class="service-features">
+              <li>4 hours coverage</li>
+              <li>Candid + posed shots</li>
+              <li>50+ edited photos</li>
+              <li>Online gallery</li>
+            </ul>
+            <a href="#" data-page="booking" class="button button-secondary">Book Now</a>
+          </div>
+          <div class="service-card">
+            <div class="service-icon">👗</div>
+            <h3>Fashion Shoot</h3>
+            <p class="service-price">₦30,000</p>
+            <ul class="service-features">
+              <li>3 hours session</li>
+              <li>Multiple locations</li>
+              <li>100+ photos</li>
+              <li>Advanced editing</li>
+            </ul>
+            <a href="#" data-page="booking" class="button button-secondary">Book Now</a>
+          </div>
+          <div class="service-card">
+            <div class="service-icon">🎂</div>
+            <h3>Birthday & Celebration</h3>
+            <p class="service-price">₦20,000</p>
+            <ul class="service-features">
+              <li>2 hours coverage</li>
+              <li>Candid moments</li>
+              <li>5+ edited photos</li>
+              <li>Print-ready files on Request</li>
+            </ul>
+            <a href="#" data-page="booking" class="button button-secondary">Book Now</a>
+          </div>
+          <div class="service-card">
+            <div class="service-icon">🎓</div>
+            <h3>Graduation Session</h3>
+            <p class="service-price">₦30,000</p>
+            <ul class="service-features">
+              <li>2 hours session</li>
+              <li>Cap & gown + casual</li>
+              <li>5+ edited photos</li>
+              <li>Digital download</li>
+            </ul>
+            <a href="#" data-page="booking" class="button button-secondary">Book Now</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BEFORE & AFTER PAGE -->
+    <section id="page-before-after" class="page">
+      <div class="page-header">
+        <div class="container section-header">
+          <p class="eyebrow">Editing Showcase</p>
+          <h1>Before & After</h1>
+          <p>See the power of professional editing and retouching.</p>
+        </div>
+      </div>
+
+      <div class="container before-after-container">
+        <div class="before-after-slider" id="beforeAfterSlider">
+          <img class="before-after-img after" src="My%20webproject/oyinnn.jpg" alt="After editing" />
+          <img class="before-after-img before" src="My%20webproject/oyinnn.jpg" alt="Before editing" />
+          <input type="range" min="0" max="100" value="50" class="before-after-range" id="beforeAfterRange" />
+          <div class="before-after-labels">
+            <span class="label-before">BEFORE</span>
+            <span class="label-after">AFTER</span>
+          </div>
+        </div>
+        <p class="before-after-caption">Drag the slider to compare the original image with the edited version.</p>
+      </div>
+    </section>
+
+
+    <section id="page-blog" class="page">
+      <div class="page-header">
+        <div class="container section-header">
+          <p class="eyebrow">Blog</p>
+          <h1>Photography Tips & Stories</h1>
+          <p>Photography insights, editing tips, and behind-the-scenes stories.</p>
+        </div>
+      </div>
+
+      <div class="container">
+        <div class="blog-hero">
+          <div class="blog-hero-content">
+            <p class="eyebrow">Trending Highlights</p>
+            <h2>Fresh inspiration, bold visual ideas, and behind-the-scenes moments.</h2>
+            <p>From iconic locations to cinematic editing secrets, these highlights bring the story behind the lens to
+              life.</p>
+          </div>
+          <a href="#" class="button button-primary" data-page="gallery">View Portfolio</a>
+        </div>
+
+        <div class="blog-grid">
+          <article class="blog-card featured-blog-card">
+            <img src="My%20webproject/oyinnn.jpg" alt="Editorial portrait highlight" />
+            <div class="blog-content">
+              <span class="blog-date">Now Trending</span>
+              <h3>Editorial Portraits with Maximum Mood</h3>
+              <p>Explore how rich tones, dramatic framing, and thoughtful styling turn intimate portraits into striking
+                editorial pieces.</p>
+              <a href="#" class="blog-read-more">See the Story →</a>
+            </div>
+          </article>
+          <article class="blog-card">
+            <img src="My%20webproject/IMG_2160.jpg" alt="Wedding highlight" />
+            <div class="blog-content">
+              <span class="blog-date">Hot Topic</span>
+              <h3>Wedding Frames That Feel Like Film</h3>
+              <p>Discover the lighting, timing, and storytelling choices that make wedding photography feel cinematic
+                and timeless.</p>
+              <a href="#" class="blog-read-more">Explore More →</a>
+            </div>
+          </article>
+          <article class="blog-card">
+            <img src="My%20webproject/IMG_190502_0.jpg" alt="Street photography highlight" />
+            <div class="blog-content">
+              <span class="blog-date">Inspiration</span>
+              <h3>Street Photography That Breathes Energy</h3>
+              <p>From city textures to spontaneous emotion, this style captures movement and personality in a bold way.
+              </p>
+              <a href="#" class="blog-read-more">Read the Highlight →</a>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- BOOKING PAGE -->
+    <section id="page-booking" class="page">
+      <div class="page-header">
+        <div class="container section-header">
+          <p class="eyebrow">Ready to Collaborate?</p>
+          <h1>Book Your Session</h1>
+          <p>Schedule your photoshoot or inquire about custom packages.</p>
+        </div>
+      </div>
+
+      <div class="container booking-grid">
+        <form class="booking-form" id="bookingForm">
+          <div class="form-group">
+            <label for="clientName">Your Name *</label>
+            <input type="text" id="clientName" name="name" placeholder="Full name" required />
+          </div>
+          <div class="form-group">
+            <label for="clientEmail">Email *</label>
+            <input type="email" id="clientEmail" name="email" placeholder="you@example.com" required />
+          </div>
+          <div class="form-group">
+            <label for="clientPhone">Phone Number *</label>
+            <input type="tel" id="clientPhone" name="phone" placeholder="+234" required />
+          </div>
+          <div class="form-group">
+            <label for="shootType">Type of Shoot *</label>
+            <select id="shootType" name="shootType" required>
+              <option value="">Select a package</option>
+              <option value="portrait">Portrait Session</option>
+              <option value="wedding">Wedding Photography</option>
+              <option value="event">Event Coverage</option>
+              <option value="fashion">Fashion Shoot</option>
+              <option value="birthday">Birthday & Celebration</option>
+              <option value="graduation">Graduation Session</option>
+              <option value="custom">Custom Package</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="shootDate">Preferred Date *</label>
+            <input type="date" id="shootDate" name="date" required />
+          </div>
+          <div class="form-group">
+            <label for="shootTime">Preferred Time *</label>
+            <input type="time" id="shootTime" name="time" required />
+          </div>
+          <div class="form-group">
+            <label for="shootLocation">Location/Venue *</label>
+            <input type="text" id="shootLocation" name="location" placeholder="Where would you like to shoot?"
+              required />
+          </div>
+          <div class="form-group">
+            <label for="shootPriority">What’s most important to you about these photographs?</label>
+            <select id="shootPriority" name="priority" required>
+              <option value="">Choose the most important outcome</option>
+              <option value="milestone">Celebrating a milestone</option>
+              <option value="confidence">Looking confident</option>
+              <option value="love-story">Telling our love story</option>
+              <option value="personal-brand">Building my personal brand</option>
+              <option value="fashion-editorial">Creating fashion/editorial work</option>
+              <option value="natural-event">Capturing the event naturally</option>
+              <option value="different">Something completely different</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="shootMessage">Tell me what you're imagining.</label>
+            <textarea id="shootMessage" name="message" rows="4"
+              placeholder="Share your mood, story, or style ideas here..."></textarea>
+          </div>
+          <button type="submit" class="button button-primary">Request Booking</button>
+        </form>
+        <div class="booking-info">
+          <h3>Why Book With Me?</h3>
+          <ul class="booking-benefits">
+            <li>✓ Professional quality guaranteed</li>
+            <li>✓ Flexible scheduling</li>
+            <li>✓ Expert editing & retouching</li>
+            <li>✓ Quick turnaround time</li>
+            <li>✓ Custom packages available</li>
+            <li>✓ Unlimited revisions</li>
+          </ul>
+          <div class="booking-contact">
+            <h4>Quick Contact</h4>
+            <p><strong>WhatsApp:</strong> <a href="https://wa.me/2349025803917" target="_blank">Message on WhatsApp</a>
+            </p>
+            <p><strong>Email:</strong> <a href="mailto:nifemiayoola3@gmail.com">nifemiayoola3@gmail.com</a></p>
+            <p><strong>TikTok:</strong> <a href="https://tiktok.com/@nifemiroy" target="_blank">@nifemiroy</a></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT PAGE -->
+    <section id="page-about" class="page">
+      <div class="page-header">
+        <div class="container section-header">
+          <p class="eyebrow">About Me</p>
+          <h1>My Story</h1>
+        </div>
+      </div>
+
+      <div class="container about-grid">
+        <div class="about-profile">
+          <div class="about-image-card">
+            <img src="images/NIFEMIROY.jpeg" alt="Portrait of Oluwanifemi Roy" class="about-photo"
+              onerror="this.src='images/placeholder.svg'" />
+            <p class="about-image-caption">Oluwanifemi Roy — founder, creative director, and cinematic portrait
+              photographer</p>
+          </div>
+          <div class="about-copy">
+            <p class="eyebrow">Professional Photography with a Cinematic Edge</p>
+            <h2>I specialize in capturing moments that matter.</h2>
+            <p>With over 3 years of experience in professional photography, I've developed a signature style that blends
+              natural storytelling with polished composition. My work delivers images that feel personal, powerful, and
+              timeless.</p>
+            <p>Whether it's a wedding, portrait session, fashion shoot, or corporate event, I bring creativity,
+              technical
+              expertise, and a passion for visual storytelling to every project.</p>
+            <p>My editing style is refined and modern, enhancing your natural beauty and the essence of each moment
+              without overdoing it.</p>
+          </div>
+        </div>
+        <div class="about-stats">
+          <div>
+            <strong>3+</strong>
+            <span>Years shooting</span>
+          </div>
+          <div>
+            <strong>100+</strong>
+            <span>Projects completed</span>
+          </div>
+          <div>
+            <strong>100%</strong>
+            <span>Client satisfaction</span>
+          </div>
+          <div>
+            <strong>5★</strong>
+            <span>Average rating</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Testimonials Section on About Page -->
+      <div class="container">
+        <div class="section-header">
+          <p class="eyebrow">Client Testimonials</p>
+          <h2>What my clients say</h2>
+        </div>
+        <div class="testimonials-grid">
+          <div class="testimonial-card">
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-text">"Roy captured our wedding day beautifully. Every moment felt natural and
+              authentic. We couldn't be happier with the photos!"</p>
+            <p class="testimonial-author">— Tunde & Wuraola</p>
+            <p class="testimonial-type">Wedding Photography</p>
+          </div>
+          <div class="testimonial-card">
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-text">"Professional, creative, and so easy to work with. Roy made me feel comfortable
+              during my fashion shoot and the results are stunning!"</p>
+            <p class="testimonial-author">— Chioma</p>
+            <p class="testimonial-type">Fashion Shoot</p>
+          </div>
+          <div class="testimonial-card">
+            <div class="testimonial-stars">★★★★★</div>
+            <p class="testimonial-text">"The best decision for my graduation photos. Roy's editing style is signature
+              and unique. Highly recommended!"</p>
+            <p class="testimonial-author">— Seun</p>
+            <p class="testimonial-type">Graduation Session</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT PAGE -->
+    <section id="page-contact" class="page">
+      <div class="page-header">
+        <div class="container section-header">
+          <p class="eyebrow">Get In Touch</p>
+          <h1>Let's Connect</h1>
+          <p>Reach out for inquiries, collaborations, or just to say hello!</p>
+        </div>
+      </div>
+
+      <div class="container contact-grid">
+        <div class="contact-details">
+          <h3>Contact Information</h3>
+          <p>Ready to bring your vision to life? Reach out through any of these channels:</p>
+          <ul>
+            <li>
+              <strong>📧 Email:</strong>
+              <a href="mailto:nifemiayoola3@gmail.com">nifemiayoola3@gmail.com</a>
+            </li>
+            <li>
+              <strong>📱 WhatsApp:</strong>
+              <a href="https://wa.me/2349025803917" target="_blank">+234 902 580 3917</a>
+            </li>
+            <li>
+              <strong>🎵 TikTok:</strong>
+              <a href="https://tiktok.com/@nifemiroy" target="_blank">@nifemiroy</a>
+            </li>
+            <li>
+              <strong>📍 Location:</strong>
+              Lagos, Nigeria
+            </li>
+          </ul>
+          <div class="contact-hours">
+            <h4>Response Time</h4>
+            <p>I typically respond to inquiries within 24 hours.</p>
+          </div>
+        </div>
+        <form class="contact-form" id="contactForm">
+          <div class="form-group">
+            <label for="contactName">Name *</label>
+            <input type="text" id="contactName" name="name" placeholder="Your name" required />
+          </div>
+          <div class="form-group">
+            <label for="contactEmail">Email *</label>
+            <input type="email" id="contactEmail" name="email" placeholder="you@example.com" required />
+          </div>
+          <div class="form-group">
+            <label for="contactSubject">Subject *</label>
+            <input type="text" id="contactSubject" name="subject" placeholder="What is this about?" required />
+          </div>
+          <div class="form-group">
+            <label for="contactMessage">Message *</label>
+            <textarea id="contactMessage" name="message" rows="5" placeholder="Tell me more..." required></textarea>
+          </div>
+          <button type="submit" class="button button-primary">Send Message</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-top">
+      <div class="footer-brand">
+        <img src="LOGO.jpeg" alt="Photographed by Roy logo" class="footer-logo" />
+        <p>Cinematic photography and visual storytelling in Lagos, Nigeria.</p>
+      </div>
+      <div class="footer-links">
+        <h3>Explore</h3>
+        <ul>
+          <li><a href="#" data-page="gallery">Portfolio</a></li>
+          <li><a href="#" data-page="services">Services</a></li>
+          <li><a href="#" data-page="booking">Book</a></li>
+          <li><a href="#" data-page="contact">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h3>Policies</h3>
+        <ul>
+          <li><a href="#">Privacy</a></li>
+          <li><a href="#">Booking & cancellation</a></li>
+          <li><a href="#">Terms</a></li>
+        </ul>
+      </div>
+      <div class="footer-links">
+        <h3>Contact</h3>
+        <ul>
+          <li><a href="mailto:nifemiayoola3@gmail.com">Email Roy</a></li>
+          <li><a href="https://wa.me/2349025803917" target="_blank">WhatsApp</a></li>
+          <li><a href="https://tiktok.com/@nifemiroy" target="_blank">TikTok</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <p>© 2026 Roy's Lens Photography & Visuals. All rights reserved.</p>
+      <a href="#top" class="back-to-top">Back to top ↑</a>
+    </div>
+  </footer>
+
+  <!-- CHATBOT WIDGET -->
+  <div id="chatbot" class="chatbot-widget">
+    <button id="chatbotToggle" class="chatbot-toggle" title="Chat with Roy">
+      <span class="chat-icon">💬</span>
+      <span id="unreadBadge" class="unread-badge" style="display: none;">1</span>
+    </button>
+
+    <div id="chatWindow" class="chat-window">
+      <div class="chat-header">
+        <h3>Chat with Roy</h3>
+        <button id="chatClose" class="chat-close">✕</button>
+      </div>
+
+      <div id="chatMessages" class="chat-messages">
+        <div class="chat-message bot">
+          <div class="message-content">
+            👋 Hi! I'm Roy's virtual assistant. How can I help you today?
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-quick-replies" id="quickReplies">
+        <button class="quick-reply" data-reply="I'd like to book a photoshoot">📸 Book a Shoot</button>
+        <button class="quick-reply" data-reply="Tell me about your services">💼 Services</button>
+        <button class="quick-reply" data-reply="What are your prices?">💰 Pricing</button>
+        <button class="quick-reply" data-reply="Send me your portfolio">🖼️ Portfolio</button>
+      </div>
+
+      <div class="chat-input-area">
+        <input type="text" id="chatInput" class="chat-input" placeholder="Type your message..." autocomplete="off" />
+        <button id="chatSend" class="chat-send">📤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL (Hidden - Access with Ctrl+Shift+A) -->
+  <div id="adminPanel" class="admin-panel">
+    <div class="admin-container">
+      <div class="admin-header">
+        <h2>Chat Messages Dashboard</h2>
+        <button id="adminClose" class="admin-close">✕</button>
+      </div>
+
+      <div class="admin-stats">
+        <div class="stat">
+          <div class="stat-value" id="totalMessages">0</div>
+          <div class="stat-label">Total Messages</div>
+        </div>
+        <div class="stat">
+          <div class="stat-value" id="totalVisitors">0</div>
+          <div class="stat-label">Unique Visitors</div>
+        </div>
+      </div>
+
+      <div class="admin-controls">
+        <button id="exportMessages" class="btn-secondary">📥 Export Messages</button>
+        <button id="clearMessages" class="btn-danger">🗑️ Clear All</button>
+      </div>
+
+      <div id="adminMessages" class="admin-messages">
+        <!-- Messages will be populated here -->
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

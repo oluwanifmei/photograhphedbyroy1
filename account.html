@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>My Account — Photographed by Roy</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="forms.css">
+</head>
+<body>
+  <main class="admin-page">
+    <div class="form-logo">
+      <a href="index.html">
+        <span class="brand-mark">R</span>
+      </a>
+    </div>
+    <h1>My Account</h1>
+    <p>Manage your profile information and view your booking requests.</p>
+    
+    <div id="profileCard" class="booking-form" style="margin-bottom: 2.5rem;">
+      <div class="form-group">
+        <label for="profileName">Full Name</label>
+        <input id="profileName" placeholder="Your name">
+      </div>
+      <div class="form-group">
+        <label for="profilePhone">Phone Number</label>
+        <input id="profilePhone" placeholder="+234">
+      </div>
+      <div class="form-group">
+        <label for="profilePassword">New Password</label>
+        <input id="profilePassword" type="password" placeholder="Leave blank to keep current password">
+      </div>
+      <div class="form-actions">
+        <button id="saveProfile" class="button button-primary">Save Profile Changes</button>
+      </div>
+    </div>
+
+    <div id="myBookings" class="admin-section">
+      <h2>My Bookings</h2>
+      <ul id="myBookingsList"></ul>
+    </div>
+
+    <p class="return-home"><a href="index.html">← Return to home</a></p>
+  </main>
+  <script src="config.js"></script>
+  <script src="account.js"></script>
+</body>
+</html>

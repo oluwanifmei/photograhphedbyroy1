@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: nifemi-photography-backend
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        value: admin@example.com
+      - key: FRONTEND_URL
+        sync: false

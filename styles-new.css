@@ -1,0 +1,449 @@
+/* ==========================================================================
+   🎬 CINEMATIC HERO SECTION STYLING
+   ========================================================================== */
+
+.cinematic-hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 620px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: radial-gradient(circle at top left, rgba(219, 179, 137, 0.12), transparent 28%),
+    radial-gradient(circle at right center, rgba(244, 195, 124, 0.10), transparent 24%),
+    #080b13;
+  color: #f4f7ff;
+}
+
+.cinematic-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 20% 25%, rgba(255, 224, 163, 0.16), transparent 20%),
+    radial-gradient(circle at 80% 40%, rgba(255, 255, 255, 0.08), transparent 12%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Video Background styling */
+.hero-video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  min-width: 100%;
+  min-height: 100%;
+  object-fit: cover;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Fallback Background Image styling */
+.hero-video-fallback {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: 40% center;
+  background-repeat: no-repeat;
+  filter: saturate(1.05) contrast(1.05);
+  z-index: 2;
+  transition: opacity 1s ease-in-out;
+  opacity: 1;
+}
+
+/* Hide fallback smoothly when video starts playing */
+.hero-video-fallback.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Dark gradient overlay for text readability over bright videos */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    145deg,
+    rgba(11, 9, 18, 0.22) 0%,
+    rgba(7, 7, 16, 0.48) 35%,
+    rgba(6, 6, 14, 0.88) 100%
+  );
+  z-index: 3;
+  pointer-events: none;
+}
+
+/* Cinematic Content Container styling */
+.cinematic-content {
+  position: relative;
+  z-index: 4;
+  width: 100%;
+  max-width: 900px;
+  padding: 0 2rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-copy-cinematic {
+  opacity: 0;
+  animation: heroContentFadeIn 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation-delay: 0.1s;
+}
+
+/* Eyebrow text */
+.eyebrow-cinema {
+  margin: 0 auto 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0;
+  transform: translateY(-20px);
+  animation: slideInDown 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Title Styling */
+.cinematic-title {
+  margin: 0 0 1.5rem 0;
+  font-size: clamp(2.8rem, 6vw, 5.5rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  color: #f4f7ff;
+}
+
+/* Cascade word animation */
+.title-word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: wordSlideUp 0.8s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+}
+
+.title-word:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.title-word:nth-child(2) {
+  animation-delay: 0.25s;
+}
+
+.title-word:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Title Highlight (Gradient Text) */
+.title-highlight {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: wordSlideUp 0.8s cubic-bezier(0.2, 0.9, 0.3, 1) forwards;
+  animation-delay: 0.55s;
+  font-weight: 800;
+}
+
+/* Subtitle description */
+.cinematic-subtitle {
+  color: var(--muted);
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  line-height: 1.75;
+  max-width: 700px;
+  margin: 0 auto 2.5rem;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation-delay: 0.7s;
+}
+
+/* CTA Action buttons container */
+.hero-actions-cinema {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  opacity: 0;
+  animation: fadeIn 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation-delay: 0.9s;
+}
+
+.hero-quickline {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.8rem;
+  margin: 1.8rem auto 0;
+  color: rgba(244, 247, 255, 0.78);
+  font-size: 0.92rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0;
+  animation: fadeIn 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation-delay: 1.05s;
+}
+
+.hero-quickline span {
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Glow Effect on Hover */
+.glow-effect {
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.glow-effect:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 30px rgba(219, 179, 137, 0.6);
+}
+
+/* Scroll indicator */
+.scroll-indicator {
+  position: absolute;
+  bottom: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.85rem;
+  opacity: 0;
+  animation: fadeIn 1s ease-out forwards;
+  animation-delay: 1.1s;
+  pointer-events: none;
+}
+
+.scroll-dot {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--accent);
+  margin: 0 auto 0.75rem;
+  animation: scrollBounce 2s infinite ease-in-out;
+}
+
+/* Keyframe Animations */
+@keyframes heroContentFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes wordSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scrollBounce {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(8px);
+    opacity: 1;
+  }
+}
+
+/* Breakpoints and Mobile Responsiveness */
+@media (max-width: 900px) {
+  .cinematic-hero {
+    height: 100vh;
+  }
+  .cinematic-title {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+  }
+}
+
+@media (max-width: 680px) {
+  .cinematic-hero {
+    height: 90vh;
+    min-height: 500px;
+  }
+  
+  .cinematic-title {
+    font-size: clamp(2rem, 8vw, 2.8rem);
+    line-height: 1.2;
+  }
+
+  .hero-actions-cinema {
+    flex-direction: column;
+    width: 100%;
+    max-width: 320px;
+    margin: 0 auto;
+    gap: 1rem;
+  }
+
+  .hero-actions-cinema .button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .scroll-indicator {
+    bottom: 1.5rem;
+  }
+}
+
+/* ==========================================================================
+   👤 ACCOUNT DROPDOWN MENU STYLING
+   ========================================================================== */
+
+.account-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.account-btn {
+  border: 1px solid var(--contrast-border);
+  background: transparent;
+  color: var(--text);
+  padding: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease;
+  outline: none;
+}
+
+.account-btn:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.account-btn[aria-expanded="true"] {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--accent);
+}
+
+.account-icon {
+  width: 20px;
+  height: 20px;
+  stroke: var(--text);
+  transition: stroke 180ms ease;
+}
+
+.account-btn:hover .account-icon {
+  stroke: var(--accent-strong);
+}
+
+.account-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 200px;
+  background: var(--surface-2);
+  border: 1px solid var(--contrast-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  padding: 0.75rem 0;
+  z-index: 150;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px) scale(0.95);
+  transform-origin: top right;
+  transition: opacity 200ms cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 200ms cubic-bezier(0.16, 1, 0.3, 1), 
+              visibility 200ms;
+}
+
+.account-menu.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.account-menu-header {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  opacity: 0.85;
+}
+
+.account-menu-divider {
+  height: 1px;
+  background: var(--contrast-border);
+  margin: 0.5rem 0;
+}
+
+.account-menu-item {
+  display: block;
+  padding: 0.6rem 1.25rem;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.92rem;
+  font-weight: 500;
+  transition: background-color 150ms ease, color 150ms ease;
+  text-align: left;
+  border: none;
+  background: transparent;
+  width: 100%;
+  cursor: pointer;
+}
+
+.account-menu-item:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+}
+
+/* Light mode adjustments */
+html[data-theme="light"] .account-menu {
+  background: var(--surface);
+  box-shadow: 0 15px 35px rgba(20, 29, 54, 0.12);
+}
+
+html[data-theme="light"] .account-menu-item:hover {
+  background-color: rgba(20, 29, 54, 0.04);
+}

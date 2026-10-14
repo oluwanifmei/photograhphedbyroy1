@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Sign Up — Photographed by Roy</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="forms.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'><rect width='120' height='120' fill='%23080b13'/><circle cx='60' cy='60' r='44' fill='%23f4f7ff'/><text x='50%' y='57%' dominant-baseline='middle' text-anchor='middle' font-family='Cormorant Garamond,serif' font-size='58' font-weight='700' fill='%23080b13'>R</text></svg>">
+</head>
+<body>
+  <main class="form-page">
+    <div class="form-logo">
+      <a href="index.html">
+        <span class="brand-mark">R</span>
+      </a>
+    </div>
+    <h1>Sign Up</h1>
+    <p>Create an account to request and manage bookings.</p>
+    
+    <form id="signupForm" class="booking-form">
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" placeholder="Oluwanifemi Roy" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" placeholder="you@example.com" required>
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" placeholder="+234">
+      </div>
+      <div class="form-group">
+        <label for="password">Password (optional)</label>
+        <input type="password" id="password" placeholder="••••••••">
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="button button-primary">Create Account</button>
+        <a class="button button-secondary" href="booking.html">Skip to Booking</a>
+      </div>
+    </form>
+    
+    <p class="return-home"><a href="index.html">← Return to home</a></p>
+  </main>
+  <script src="config.js"></script>
+  <script src="signup.js"></script>
+</body>
+</html>
