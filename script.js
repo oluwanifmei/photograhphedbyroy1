@@ -1,3 +1,11 @@
+const siteLoader = document.getElementById('siteLoader');
+if (siteLoader) {
+  setTimeout(() => {
+    siteLoader.classList.add('is-hidden');
+    document.body.classList.remove('is-loading');
+  }, 10000);
+}
+
 // Page Navigation System
 const navLinks = document.querySelectorAll('[data-page]');
 const pages = document.querySelectorAll('.page');
@@ -19,7 +27,11 @@ navLinks.forEach(link => {
 
     // Close mobile menu
     const siteNav = document.querySelector('.site-nav');
-    if (siteNav) siteNav.classList.remove('active');
+    if (siteNav) {
+      siteNav.classList.remove('active');
+      navToggle?.setAttribute('aria-expanded', 'false');
+      navToggle?.setAttribute('aria-label', 'Open navigation menu');
+    }
   });
 });
 
@@ -77,6 +89,7 @@ if (navToggle && siteNav) {
     siteNav.classList.toggle('active');
     const expanded = siteNav.classList.contains('active');
     navToggle.setAttribute('aria-expanded', expanded);
+    navToggle.setAttribute('aria-label', expanded ? 'Close navigation menu' : 'Open navigation menu');
   });
 }
 
@@ -114,16 +127,6 @@ const fadeOutBookingBanner = () => {
 document.body.classList.add('is-loading');
 
 window.addEventListener('load', () => {
-  const siteLoader = document.getElementById('siteLoader');
-  if (siteLoader) {
-    setTimeout(() => {
-      siteLoader.classList.add('is-hidden');
-      document.body.classList.remove('is-loading');
-    }, 2200);
-  } else {
-    document.body.classList.remove('is-loading');
-  }
-
   if (bookingBanner) {
     setTimeout(() => {
       if (!localStorage.getItem('bookingBannerClosed')) {
@@ -232,14 +235,10 @@ const beforeAfterSlider = document.getElementById('beforeAfterSlider');
 
 if (beforeAfterRange && beforeAfterSlider) {
   const updateClip = () => {
-    const value = beforeAfterRange.value;
-    beforeAfterSlider.style.setProperty('--clip', value + '%');
+    beforeAfterSlider.style.setProperty('--clip', `${beforeAfterRange.value}%`);
   };
 
   beforeAfterRange.addEventListener('input', updateClip);
-  beforeAfterRange.addEventListener('mousemove', updateClip);
-  beforeAfterRange.addEventListener('touchmove', updateClip);
-
   updateClip();
 }
 

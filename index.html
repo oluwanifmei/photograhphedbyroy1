@@ -77,12 +77,11 @@
 
   <header class="site-header">
     <div class="container header-inner">
-      <img src="LOGO.jpeg" style="width: 52px; height:auto;" alt="Roy's Lens logo" class="site-logo" />
       <a class="brand" href="#" data-page="home">
-        <span class="brand-mark" aria-hidden="true">R</span>
+        <img src="LOGO.jpeg" alt="" class="site-logo" />
         <span class="brand-text">PHOTOGRAPHED BY ROY</span>
       </a>
-      <nav class="site-nav" aria-label="Primary navigation">
+      <nav class="site-nav" id="primaryNavigation" aria-label="Primary navigation">
         <a href="#" data-page="home">Home</a>
         <a href="#" data-page="gallery">Gallery</a>
         <a href="#" data-page="services">Services</a>
@@ -107,7 +106,7 @@
             <!-- Populated dynamically by script.js -->
           </div>
         </div>
-        <button class="nav-toggle" aria-label="Open navigation menu" aria-expanded="false">
+        <button class="nav-toggle" aria-label="Open navigation menu" aria-controls="primaryNavigation" aria-expanded="false">
           <span class="nav-toggle__icon" aria-hidden="true"></span>
         </button>
       </div>
@@ -572,15 +571,15 @@
 
       <div class="container before-after-container">
         <div class="before-after-slider" id="beforeAfterSlider">
-          <img class="before-after-img after" src="My%20webproject/oyinnn.jpg" alt="After editing" />
-          <img class="before-after-img before" src="My%20webproject/oyinnn.jpg" alt="Before editing" />
-          <input type="range" min="0" max="100" value="50" class="before-after-range" id="beforeAfterRange" />
-          <div class="before-after-labels">
+          <img class="before-after-img after" src="My%20webproject/IMG_3668.jpg" alt="Edited portrait in full color" />
+          <img class="before-after-img before" src="My%20webproject/IMG_3668.jpg" alt="Same portrait before color editing" />
+          <input type="range" min="0" max="100" value="50" class="before-after-range" id="beforeAfterRange" aria-label="Drag to compare before and after editing" />
+          <div class="before-after-labels" aria-hidden="true">
             <span class="label-before">BEFORE</span>
             <span class="label-after">AFTER</span>
           </div>
         </div>
-        <p class="before-after-caption">Drag the slider to compare the original image with the edited version.</p>
+        <p class="before-after-caption">Drag across the portrait to compare the original treatment with the finished edit.</p>
       </div>
     </section>
 
