@@ -1524,6 +1524,11 @@ main {
   object-fit: cover;
 }
 
+.featured-blog-card img {
+  aspect-ratio: 3 / 4;
+  object-position: center 22%;
+}
+
 .featured-blog-card {
   transform: translateY(-6px);
 }
@@ -1706,8 +1711,10 @@ main {
 .about-photo {
   width: 100%;
   display: block;
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 2 / 3;
+  max-height: 780px;
   object-fit: cover;
+  object-position: center 35%;
 }
 
 .about-image-caption {

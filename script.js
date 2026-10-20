@@ -174,7 +174,7 @@ const galleryData = [
   { src: 'My%20webproject/IMG_4663.JPG', category: 'street', title: 'Night Street', alt: 'Night street photography' },
   { src: 'My%20webproject/IMG_4665.JPG', category: 'street', title: 'Street Walk', alt: 'Street scene image' },
   { src: 'My%20webproject/IMG_4670.JPG', category: 'street', title: 'Urban Detail', alt: 'Urban street detail photo' },
-  { src: 'My%20webproject/IMG_5039.JPG', category: 'portraits', title: 'Moody Portrait', alt: 'Moody portrait photograph' },
+  { src: 'IMG_8510.JPG.jpeg', category: 'portraits', title: 'Moody Portrait', alt: 'Portrait of a woman in a blue outfit outdoors' },
   { src: 'My%20webproject/IMG_5150.JPG', category: 'portraits', title: 'Studio Portrait', alt: 'Studio portrait image' },
   { src: 'My%20webproject/IMG_5152.JPG', category: 'portraits', title: 'Natural Portrait', alt: 'Portrait photo with natural light' },
   { src: 'My%20webproject/IMG_5154.jpg', category: 'portraits', title: 'Portrait Story', alt: 'Portrait storytelling image' },
@@ -188,6 +188,11 @@ const galleryData = [
   { src: 'My%20webproject/IMG_9596.jpg', category: 'portraits', title: 'Editorial Portrait', alt: 'Editorial style portrait' },
   { src: 'My%20webproject/IMG_9665.jpg', category: 'portraits', title: 'Evening Portrait', alt: 'Portrait in evening light' },
   { src: 'My%20webproject/temp_image_115334A8-3116-43C3-A723-34DEE48E4644.webp', category: 'nature', title: 'Nature Texture', alt: 'Nature texture photo' },
+  { src: 'My%20webproject/IMG_1094.jpg', category: 'events', title: 'Live Saxophone Performance', alt: 'Saxophonist performing under purple stage lights' },
+  { src: 'My%20webproject/IMG_1120.jpg', category: 'events', title: 'Stage Performance', alt: 'Musician performing on a concert stage' },
+  { src: 'My%20webproject/IMG_1130.jpg', category: 'events', title: 'Concert Lights', alt: 'Colorful lights above a live performance' },
+  { src: 'My%20webproject/IMG_4359.jpg', category: 'portraits', title: 'Studio Portrait', alt: 'Portrait of a woman seated in a studio' },
+  { src: 'My%20webproject/IMG_5513.jpg', category: 'portraits', title: 'Candid Portrait', alt: 'Casual portrait at home' },
 ];
 
 const galleryGrid = document.getElementById('galleryGrid');
