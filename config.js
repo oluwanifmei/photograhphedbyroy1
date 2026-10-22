@@ -1,5 +1,6 @@
 // Global App Configuration
 const APP_CONFIG = {
+  STATIC_HOSTING: typeof document !== 'undefined' && !!document.querySelector('meta[name="roy-static-hosting"]'),
   // Replace this with your actual deployed Render URL after creating your service on Render.com
   // Example: 'https://nifemi-photography-backend.onrender.com'
   RENDER_BACKEND_URL: '',

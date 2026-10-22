@@ -1,5 +1,27 @@
 # Running the corrected application
 
+## Public website on GitHub Pages
+
+The public portfolio can run without a server. The `Publish photography website`
+workflow builds real HTML files for every public page and publishes only the
+public assets. The build uses GitHub's configured Pages URL, including the
+repository subdirectory, so navigation, story anchors and photo URLs stay on
+the correct site. Keep Settings → Pages → Source set to GitHub Actions.
+
+For a local static build, set `SITE_URL` to the full website URL including its
+repository path, then run `npm run build:pages`. The output is in `dist/`.
+The build preserves original photographs and optimized image variants and
+excludes server source, environment files and customer records.
+
+On the server-free Pages site, booking enquiries open a prefilled WhatsApp
+draft. The visitor must press Send in WhatsApp; the form never claims that a
+booking has been saved or confirmed. Account controls are hidden and old
+account links explain that online account access is not available yet.
+The original account/dashboard code and API booking flow remain available
+when deploying the application with the Express server.
+
+## Express server and online accounts
+
 Install dependencies with `npm install` (or `pnpm install`). Run checks with
 `npm test`, then start with `npm start` and open http://localhost:3000.
 

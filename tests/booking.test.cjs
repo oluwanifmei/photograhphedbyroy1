@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
 
-function page(home = false, inline = false) {
+function page(home = false, inline = false, staticHosting = false) {
   let submit;
   let resets = 0;
   const button = { disabled: false };
@@ -13,10 +13,14 @@ function page(home = false, inline = false) {
   const alerts = [];
   const status = { hidden: true, textContent: '', dataset: {}, focus() {} };
   const calls = [];
+  const drafts = [];
   let response = async () => ({ ok: true, json: async () => ({ ok: true }) });
   const context = { window: { APP_CONFIG: { API_BASE: 'https://api.example.com' } }, document: { addEventListener: (_, fn) => fn(), querySelectorAll: () => [], getElementById: id => id === 'bookingForm' ? form : id === 'bookingStatus' && inline ? status : (id in values ? { value: values[id] } : null) }, localStorage: { getItem: () => null, setItem: () => assert.fail('Must not store a failed booking locally') }, alert: message => alerts.push(message), fetch: async (url, options) => { calls.push({ url, options }); return response(); }, AbortController, setTimeout, clearTimeout, crypto: { randomUUID: () => 'test-request-key-123456' }, TypeError };
+  context.window.APP_CONFIG.STATIC_HOSTING = staticHosting;
+  context.window.APP_CONFIG.WHATSAPP_NUMBER = '2349025803917';
+  context.window.open = url => drafts.push(url);
   vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../booking.js'), 'utf8'), context);
-  return { submit: () => submit({ preventDefault() {} }), alerts, calls, button, status, get resets() { return resets; }, respond: fn => response = fn };
+  return { submit: () => submit({ preventDefault() {} }), alerts, calls, drafts, button, status, get resets() { return resets; }, respond: fn => response = fn };
 }
 
 test('both forms save through the configured API and reset only after acknowledgement', async () => {
@@ -70,4 +74,17 @@ test('config exposes its backend URL to HTTP hosted pages', () => {
   vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../config.js'), 'utf8'), context);
   context.window.APP_CONFIG.RENDER_BACKEND_URL = 'https://api.example.com/';
   assert.equal(context.window.APP_CONFIG.API_BASE, 'https://api.example.com');
+});
+
+test('static hosting opens an unsent WhatsApp enquiry and never claims a saved booking', async () => {
+  const p = page(true, true, true);
+  await p.submit();
+  assert.equal(p.calls.length, 0);
+  assert.equal(p.resets, 0);
+  const draft = new URL(p.drafts[0]);
+  assert.equal(draft.origin + draft.pathname, 'https://wa.me/2349025803917');
+  assert.match(draft.searchParams.get('text'), /Name: Client/);
+  assert.match(draft.searchParams.get('text'), /Service: Portrait/);
+  assert.match(p.status.textContent, /press Send/);
+  assert.equal(p.status.dataset.state, 'info');
 });

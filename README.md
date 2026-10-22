@@ -2,8 +2,9 @@ For the corrected server, authentication, booking flows, and production storage 
 
 The current website uses an editorial photo hero, responsive galleries, photo stories,
 client spotlights, guest booking, and a protected owner dashboard. Run it with the
-Express server (`npm install`, configure `.env`, then `npm start`) so direct page
-routes and the booking/account APIs work. Static hosting alone does not run the backend.
+Express server (`npm install`, configure `.env`, then `npm start`) for the
+booking/account APIs. GitHub Pages builds every public page with `npm run
+build:pages` and supports booking enquiries through WhatsApp without a server.
 The video-hero instructions below describe the earlier design and are retained as
 historical reference; a hero video is no longer required.
 
