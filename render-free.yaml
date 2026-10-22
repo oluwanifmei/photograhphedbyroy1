@@ -1,0 +1,25 @@
+# Select this Blueprint path for free compute with an external Neon Postgres database.
+services:
+  - type: web
+    name: photographed-by-roy-api
+    runtime: node
+    region: frankfurt
+    plan: free
+    buildCommand: npm install --omit=dev
+    startCommand: npm start
+    healthCheckPath: /api/ready
+    envVars:
+      - key: NODE_VERSION
+        value: '24'
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_BOOTSTRAP_PASSWORD
+        sync: false
+      - key: FRONTEND_URL
+        value: https://oluwanifmei.github.io

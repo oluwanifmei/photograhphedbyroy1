@@ -34,7 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
       submitting = true;
       if (button) button.disabled = true;
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 20000);
+      const timeout = setTimeout(() => controller.abort(), 90000);
+      if (status) notify('Sending your enquiry. Please keep this page open while Roy’s studio connects.', 'info');
       try {
         const headers = { 'Content-Type': 'application/json', 'Idempotency-Key': requestKey };
         const response = await fetch(config.API_BASE + '/api/booking', { method: 'POST', credentials: config.STATIC_HOSTING ? 'omit' : 'include', headers, body, signal: controller.signal });

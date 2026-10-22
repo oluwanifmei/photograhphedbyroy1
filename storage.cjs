@@ -12,10 +12,12 @@ function validate(data) {
   return data;
 }
 function conflict() {
-  return Object.assign(new Error('Records changed during this request. Please retry.'), { status: 409 });
+  return Object.assign(new Error('Records changed during this request. Please retry.'), { status: 409, storageConflict: true });
 }
 
 function createStorage(options = {}) {
+  const databaseURL = options.databaseURL || (!options.databaseFile && !options.dataFile && process.env.DATABASE_URL);
+  if (databaseURL) return require('./postgres-storage.cjs').createPostgresStorage({ ...options, databaseURL });
   const databaseFile = options.databaseFile || process.env.DATABASE_FILE;
   const legacyFile = options.dataFile || process.env.DATA_FILE || path.join(__dirname, 'data.json');
   // An explicitly configured DATA_FILE retains compatibility with existing JSON installations.
@@ -94,4 +96,4 @@ function createStorage(options = {}) {
     }
   };
 }
-module.exports = { createStorage };
+module.exports = { createStorage, revision, validate, conflict };

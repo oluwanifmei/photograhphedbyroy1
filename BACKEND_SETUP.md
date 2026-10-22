@@ -5,6 +5,36 @@ Pages portfolio stays live while the server is being set up.
 
 ## Deploy and connect
 
+### Free Render + Neon configuration
+
+Use the Free compute plan in Render and a separate Free Neon Postgres project.
+Use `render-free.yaml` when deploying through a Blueprint, or configure the
+same variables in the Web Service form. Do not attach a disk or put SQLite
+on free Render compute: its filesystem is temporary.
+
+Set `DATABASE_URL` to the private Neon **pooled connection string**, `NODE_VERSION=24`,
+`NODE_ENV=production`, `FRONTEND_URL=https://oluwanifmei.github.io`, and the real
+`ADMIN_EMAIL`. Generate a random `JWT_SECRET` of at least 32 characters. Enter
+an initial private owner password in `ADMIN_BOOTSTRAP_PASSWORD` (12 characters
+minimum, at most 72 bytes). The server creates that owner before accepting
+requests and never overwrites an existing account. Remove the bootstrap password
+from Render after verifying owner login. Free Render has no service shell.
+
+Build with `npm install --omit=dev`, start with `npm start`, and use `/api/ready`
+as the health check. A successful remote connection returns
+`{"status":"ready","storage":"postgres"}`. The database remains in Neon
+when Render restarts. Free compute can sleep when idle, so the first visit can
+take about a minute. The booking form allows 90 seconds and retains details
+if it cannot confirm receipt. Free-plan usage limits apply.
+
+Then add the server's HTTPS origin as the GitHub Actions variable `BACKEND_URL`
+and rerun **Publish photography website**. Login, Create account and Admin
+dashboard links open on the backend host; bookings save to the private database.
+The WhatsApp channel remains separate. Free Render blocks common SMTP ports;
+the owner bootstrap does not depend on SMTP or a verification email.
+
+### Optional paid service with local SQLite
+
 1. In your Render account, create a Blueprint from this existing repository
    and its `main` branch. Review `render.yaml`: it uses a paid Starter web
    service with a 1 GB persistent disk. Do not deploy SQLite on ephemeral
@@ -69,3 +99,9 @@ ordering and public-page tests. Set `BACKUP_FILE` to a private, new filename
 and run `npm run data:backup`. Keep an off-host copy of the resulting file.
 Database files, environment secrets and backups are excluded from Git and
 from the GitHub Pages artifact.
+
+Postgres backups are consistent JSON exports of the customer collections. Run
+the backup command locally with the private `DATABASE_URL`; keep the export
+off the public site. To restore, initialize a new database with `DATA_FILE`
+pointing at that JSON backup, verify it, and switch the service to the new
+connection string. Existing initialized databases are never overwritten by import.

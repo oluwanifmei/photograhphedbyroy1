@@ -9,14 +9,17 @@ if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !password || password
   console.error('Set ADMIN_EMAIL and a private ADMIN_PASSWORD of at least 12 characters and at most 72 bytes. Stop the server if using legacy JSON storage.');
   process.exit(1);
 }
+(async () => {
 const storage = createStorage();
-const data = storage.read();
+const data = await storage.read();
 if (data.users.some(user => user.email.toLowerCase() === email.toLowerCase())) {
   console.error('This email already has an account. Verify it through SMTP or review the existing account before provisioning an administrator.');
-  storage.close();
+  await storage.close();
   process.exit(1);
 }
 data.users.push({ id: 'u_' + randomUUID(), name: 'Roy', email, password: bcrypt.hashSync(password, 12), emailConfirmed: true, adminApproved: true, tokenVersion: 0 });
-storage.write(data);
-storage.close();
+await storage.write(data);
+await storage.close();
 console.log('Administrator created. Remove ADMIN_PASSWORD from the environment after setup.');
+
+})().catch(error => { console.error(error.message); process.exitCode = 1; });

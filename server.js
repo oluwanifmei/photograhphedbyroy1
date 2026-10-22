@@ -10,16 +10,25 @@ const { createStorage } = require('./storage.cjs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_FILE && !process.env.DATA_FILE) throw new Error('Set DATABASE_FILE to a path on persistent storage before starting production.');
+if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL && !process.env.DATABASE_FILE && !process.env.DATA_FILE) throw new Error('Set DATABASE_URL or a path on persistent storage before starting production.');
 const storage = createStorage();
 app.locals.storage = storage;
+const asyncRoute = handler => async (req, res, next) => {
+  for (let attempt = 0; attempt < 20; attempt++) {
+    try { return await handler(req, res, next); }
+    catch (error) {
+      if (!error.storageConflict || attempt === 19 || res.headersSent) return next(error);
+      await new Promise(resolve => setTimeout(resolve, 5 + Math.floor(Math.random() * 20)));
+    }
+  }
+};
 
 app.disable('x-powered-by');
 if (process.env.RENDER || process.env.TRUST_PROXY === '1') app.set('trust proxy', 1);
 const allowedOrigins = new Set([process.env.FRONTEND_URL, process.env.PUBLIC_URL, process.env.RENDER_EXTERNAL_URL].filter(Boolean).map(url => new URL(url).origin));
 app.use(cors({ origin: (origin, callback) => callback(null, allowedOrigins.has(origin)), credentials: true }));
 app.use(express.json({ limit: '32kb' }));
-app.use((req, res, next) => {
+app.use(asyncRoute(async (req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method) && req.headers.origin && req.headers.origin !== req.protocol + '://' + req.get('host') && !allowedOrigins.has(req.headers.origin)) return res.status(403).json({ error: 'Request origin not allowed.' });
@@ -27,13 +36,12 @@ app.use((req, res, next) => {
     const session = (req.headers.cookie || '').split(';').map(part => part.trim()).find(part => part.startsWith('roy_session='));
     if (session) {
       const token = session.slice('roy_session='.length);
-      if (verifyToken(token)) req.headers.authorization = 'Bearer ' + token;
+      if (await verifyToken(token)) req.headers.authorization = 'Bearer ' + token;
       else res.clearCookie('roy_session', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: process.env.CROSS_SITE_COOKIES === 'true' ? 'none' : 'lax', path: '/' });
     }
   }
   next();
-});
-const asyncRoute = handler => (req, res, next) => Promise.resolve(handler(req, res, next)).catch(next);
+}));
 const attempts = new Map();
 function throttle(req, res, next) {
   const now = Date.now();
@@ -120,10 +128,10 @@ function createToken(payload) {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
 }
 
-function verifyToken(token) {
+async function verifyToken(token) {
   try {
     const payload = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
-    const user = (loadData().users || []).find(user => user.id === payload.id);
+    const user = ((await loadData()).users || []).find(user => user.id === payload.id);
     if (!user || (payload.version || 0) !== (user.tokenVersion || 0)) return null;
     return payload;
   } catch (e) {
@@ -132,30 +140,30 @@ function verifyToken(token) {
 }
 
 // Public endpoints
-app.get('/api/health', (req, res) => {
+app.get('/api/health', asyncRoute(async (req, res) => {
   res.json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() });
-});
-app.get('/api/ready', (req, res) => {
-  try { storage.ready(); res.json({ status: 'ready', storage: storage.engine }); }
+}));
+app.get('/api/ready', asyncRoute(async (req, res) => {
+  try { await storage.ready(); res.json({ status: 'ready', storage: storage.engine }); }
   catch (error) { console.error('Storage readiness failed:', error.message); res.status(503).json({ status: 'unavailable' }); }
-});
+}));
 
-app.get('/api/signups', adminAuth, (req, res) => {
-  const data = loadData();
+app.get('/api/signups', adminAuth, asyncRoute(async (req, res) => {
+  const data = await loadData();
   res.json(data.signups || []);
-});
+}));
 
-app.get('/api/bookings', adminAuth, (req, res) => {
-  const data = loadData();
+app.get('/api/bookings', adminAuth, asyncRoute(async (req, res) => {
+  const data = await loadData();
   res.json(data.bookings || []);
-});
+}));
 
 // Registration with password -> creates a user and signup entry
 app.post('/api/register', throttle, asyncRoute(async (req, res) => {
   const { name, email, phone, password } = req.body || {};
   if (typeof name !== 'string' || !name.trim() || name.length > 200 || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254 || typeof password !== 'string' || password.length < 8 || Buffer.byteLength(password) > 72 || (phone != null && (typeof phone !== 'string' || phone.length > 50))) return res.status(400).json({ error: 'Provide a name, valid email, and password of 8–72 bytes.' });
   const hashed = await bcrypt.hash(password, 10);
-  const data = loadData();
+  const data = await loadData();
   const existing = (data.users || []).find(u => u.email.toLowerCase() === email.toLowerCase());
   if (existing) return res.status(400).json({ error: 'User already exists' });
 
@@ -169,7 +177,7 @@ app.post('/api/register', throttle, asyncRoute(async (req, res) => {
   data.signups = data.signups || [];
   data.signups.push({ id: 's_' + randomUUID(), name, email, phone, createdAt: new Date().toISOString() });
 
-  saveData(data);
+  await saveData(data);
 
   // Send confirmation email if SMTP configured
   let msg = 'Registered. Please confirm your email.';
@@ -179,29 +187,29 @@ app.post('/api/register', throttle, asyncRoute(async (req, res) => {
       msg = 'Account created, but we could not send the verification email. Use Resend verification email on the login page.';
     }
   } else {
-    msg = 'Registered and auto-confirmed (local mode). You can now log in.';
+    msg = 'Account created. You can now log in.';
   }
 
   res.json({ ok: true, message: msg });
 }));
 
-app.get('/api/confirm', (req, res) => {
+app.get('/api/confirm', asyncRoute(async (req, res) => {
   const token = req.query.token;
   if (!token) return res.status(400).send('Token required');
-  const data = loadData();
+  const data = await loadData();
   const user = (data.users || []).find(u => u.confirmToken === token);
   if (!user || !user.confirmExpires || user.confirmExpires < Date.now()) return res.status(400).send('Invalid or expired link. Please resend verification from the login page.');
   user.emailConfirmed = true;
   user.emailVerifiedAt = new Date().toISOString();
   user.confirmToken = null;
-  saveData(data);
+  await saveData(data);
   res.send('Email confirmed. You can now log in.');
-});
+}));
 
 app.post('/api/login', throttle, asyncRoute(async (req, res) => {
   const { email, password } = req.body || {};
   if (typeof email !== 'string' || typeof password !== 'string' || !email || !password) return res.status(400).json({ error: 'Email and password required' });
-  const data = loadData();
+  const data = await loadData();
   const user = (data.users || []).find(u => u.email.toLowerCase() === email.toLowerCase());
   if (!user) return res.status(400).json({ error: 'Invalid credentials' });
   if (!user.emailConfirmed) return res.status(403).json({ error: 'Email not confirmed' });
@@ -212,26 +220,26 @@ app.post('/api/login', throttle, asyncRoute(async (req, res) => {
   res.json({ ok: true, token });
 }));
 
-app.post('/api/logout', (req, res) => {
+app.post('/api/logout', asyncRoute(async (req, res) => {
   res.clearCookie('roy_session', { ...cookieOptions, maxAge: undefined });
   res.json({ ok: true });
-});
+}));
 
 app.post('/api/resend-confirmation', throttle, asyncRoute(async (req, res) => {
   const email = req.body?.email;
   if (typeof email !== 'string' || email.length > 254) return res.status(400).json({ error: 'Enter your email address.' });
-  const data = loadData();
+  const data = await loadData();
   const user = data.users.find(user => user.email.toLowerCase() === email.toLowerCase());
   if (user && !user.emailConfirmed && process.env.SMTP_HOST) {
-    user.confirmToken = randomBytes(32).toString('hex'); user.confirmExpires = Date.now() + 86400000; saveData(data);
+    user.confirmToken = randomBytes(32).toString('hex'); user.confirmExpires = Date.now() + 86400000; await saveData(data);
     try { await sendConfirmationEmail(user, user.confirmToken); } catch (err) { console.warn('Confirmation delivery failed:', err.message); return res.status(503).json({ error: 'Email delivery is temporarily unavailable. Please try again later.' }); }
   }
   res.json({ ok: true, message: 'If this account needs verification, a new link has been sent.' });
 }));
 
 // Booking endpoint (public)
-app.post('/api/booking', throttle, (req, res) => {
-  const data = loadData();
+app.post('/api/booking', throttle, asyncRoute(async (req, res) => {
+  const data = await loadData();
   const input = req.body || {};
   const limits = { name: 200, email: 254, phone: 50, service: 100, date: 10, time: 5, message: 5000, location: 500, priority: 100 };
   for (const [key, limit] of Object.entries(limits)) {
@@ -244,7 +252,7 @@ app.post('/api/booking', throttle, (req, res) => {
   entry.status = 'pending';
   if (req.headers.authorization) {
     const [scheme, token] = req.headers.authorization.split(' ');
-    const payload = scheme === 'Bearer' && verifyToken(token);
+    const payload = scheme === 'Bearer' && await verifyToken(token);
     if (!payload || !(data.users || []).some(u => u.id === payload.id)) return res.status(401).json({ error: 'Your session expired. Please log in again.' });
     entry.userId = payload.id;
   }
@@ -263,33 +271,33 @@ app.post('/api/booking', throttle, (req, res) => {
   }
   data.bookings = data.bookings || [];
   data.bookings.push(entry);
-  saveData(data);
+  await saveData(data);
   res.status(201).json({ ok: true, reference: entry.id });
-});
+}));
 
 // Return current user profile (protected)
-app.get('/api/me', (req, res) => {
+app.get('/api/me', asyncRoute(async (req, res) => {
   const auth = (req.headers.authorization || '').split(' ');
   if (auth.length !== 2 || auth[0] !== 'Bearer') return res.status(401).json({ error: 'Unauthorized' });
-  const payload = verifyToken(auth[1]);
+  const payload = await verifyToken(auth[1]);
   if (!payload || !payload.id) return res.status(401).json({ error: 'Unauthorized' });
-  const data = loadData();
+  const data = await loadData();
   const user = (data.users || []).find(u => u.id === payload.id);
   if (!user) return res.status(404).json({ error: 'User not found' });
   // return basic profile and user's bookings
   const bookings = (data.bookings || []).filter(b => b.userId === user.id);
   res.json({ id: user.id, name: user.name, email: user.email, phone: user.phone, emailConfirmed: !!user.emailConfirmed, isAdmin: isOwner(user), bookings });
-});
+}));
 
 // Update current user profile (protected)
 app.put('/api/me', asyncRoute(async (req, res) => {
   const auth = (req.headers.authorization || '').split(' ');
   if (auth.length !== 2 || auth[0] !== 'Bearer') return res.status(401).json({ error: 'Unauthorized' });
-  const payload = verifyToken(auth[1]);
+  const payload = await verifyToken(auth[1]);
   if (!payload || !payload.id) return res.status(401).json({ error: 'Unauthorized' });
   const { name, phone, password, currentPassword } = req.body || {};
   const newHash = password && typeof password === 'string' && password.length >= 8 && Buffer.byteLength(password) <= 72 ? await bcrypt.hash(password, 10) : null;
-  const data = loadData();
+  const data = await loadData();
   const user = (data.users || []).find(u => u.id === payload.id);
   if (!user) return res.status(404).json({ error: 'User not found' });
   if (password && (typeof password !== 'string' || password.length < 8 || Buffer.byteLength(password) > 72)) return res.status(400).json({ error: 'Password must be at least 8 characters and at most 72 bytes.' });
@@ -301,41 +309,43 @@ app.put('/api/me', asyncRoute(async (req, res) => {
     if (typeof currentPassword !== 'string' || !bcrypt.compareSync(currentPassword, user.password)) return res.status(400).json({ error: 'Enter your current password to change it.' });
     user.password = newHash; user.tokenVersion = (user.tokenVersion || 0) + 1;
   }
-  saveData(data);
+  await saveData(data);
   sessionResponse(res, user);
   res.json({ ok: true });
 }));
 
 // Middleware: protect admin routes
 function adminAuth(req, res, next) {
+  return asyncRoute(async (req, res, next) => {
   const auth = req.headers.authorization || '';
   const parts = auth.split(' ');
   if (parts.length !== 2 || parts[0] !== 'Bearer') return res.status(401).json({ error: 'Unauthorized' });
-  const payload = verifyToken(parts[1]);
-  const user = payload && (loadData().users || []).find(u => u.id === payload.id);
+  const payload = await verifyToken(parts[1]);
+  const user = payload && ((await loadData()).users || []).find(u => u.id === payload.id);
   if (!user || !user.emailConfirmed || !isOwner(user)) return res.status(403).json({ error: 'Forbidden' });
   req.user = payload;
   next();
+  })(req, res, next);
 }
 
 // Protected admin endpoints
-app.get('/api/admin/summary', adminAuth, (req, res) => {
-  const data = loadData();
+app.get('/api/admin/summary', adminAuth, asyncRoute(async (req, res) => {
+  const data = await loadData();
   const bookings = data.bookings || [];
   res.json({ total: bookings.length, pending: bookings.filter(b => b.status === 'pending').length, confirmed: bookings.filter(b => b.status === 'confirmed').length, clients: (data.users || []).length });
-});
+}));
 
 app.use('/api/admin', (req, res, next) => {
   for (const value of Object.values(req.query)) if (typeof value !== 'string') return res.status(400).json({ error: 'Invalid filter' });
   next();
 });
-app.get('/api/admin/signups', adminAuth, (req, res) => {
-  const data = loadData();
+app.get('/api/admin/signups', adminAuth, asyncRoute(async (req, res) => {
+  const data = await loadData();
   res.json(data.signups || []);
-});
+}));
 
-app.get('/api/admin/bookings', adminAuth, (req, res) => {
-  const data = loadData();
+app.get('/api/admin/bookings', adminAuth, asyncRoute(async (req, res) => {
+  const data = await loadData();
   let list = data.bookings || [];
   const { search, status, page = 1, limit = 20, start, end } = req.query;
   if (search) {
@@ -365,18 +375,18 @@ app.get('/api/admin/bookings', adminAuth, (req, res) => {
   const offset = (p-1)*l;
   const paged = list.slice(offset, offset + l);
   res.json({ total: list.length, page: p, limit: l, items: paged });
-});
+}));
 
 // Bulk actions for bookings: change status or delete
-app.post('/api/admin/bookings/bulk', adminAuth, (req, res) => {
+app.post('/api/admin/bookings/bulk', adminAuth, asyncRoute(async (req, res) => {
   const { ids, action, status } = req.body || {};
   if (!Array.isArray(ids) || ids.length === 0) return res.status(400).json({ error: 'ids required' });
   if (ids.length > 100 || ids.some(id => typeof id !== 'string')) return res.status(400).json({ error: 'Provide at most 100 booking IDs.' });
-  const data = loadData();
+  const data = await loadData();
   if (action === 'delete') {
     const before = (data.bookings || []).length;
     data.bookings = (data.bookings || []).filter(b => !ids.includes(b.id));
-    saveData(data);
+    await saveData(data);
     return res.json({ ok: true, deleted: before - data.bookings.length });
   }
   if (action === 'status') {
@@ -385,15 +395,15 @@ app.post('/api/admin/bookings/bulk', adminAuth, (req, res) => {
     (data.bookings || []).forEach(b => {
       if (ids.includes(b.id)) { b.status = status || b.status; updated++; }
     });
-    saveData(data);
+    await saveData(data);
     return res.json({ ok: true, updated });
   }
   res.status(400).json({ error: 'Invalid action' });
-});
+}));
 
 // Export CSV for filtered bookings
-app.get('/api/admin/export/bookings', adminAuth, (req, res) => {
-  const data = loadData();
+app.get('/api/admin/export/bookings', adminAuth, asyncRoute(async (req, res) => {
+  const data = await loadData();
   let list = data.bookings || [];
   const { search, status, start, end } = req.query;
   if (search) {
@@ -426,49 +436,49 @@ app.get('/api/admin/export/bookings', adminAuth, (req, res) => {
   res.setHeader('Content-Type', 'text/csv');
   res.setHeader('Content-Disposition', 'attachment; filename="bookings-export.csv"');
   res.send(csv);
-});
+}));
 
 // Get user details and their bookings
-app.get('/api/admin/user/:id', adminAuth, (req, res) => {
+app.get('/api/admin/user/:id', adminAuth, asyncRoute(async (req, res) => {
   const id = req.params.id;
-  const data = loadData();
+  const data = await loadData();
   const user = (data.users || []).find(u => u.id === id);
   if (!user) return res.status(404).json({ error: 'User not found' });
   const bookings = (data.bookings || []).filter(b => b.userId === user.id);
   res.json({ user: { id: user.id, name: user.name, email: user.email, phone: user.phone, emailConfirmed: !!user.emailConfirmed, isAdmin: !!user.isAdmin }, bookings });
-});
+}));
 
 // Update booking status
-app.post('/api/admin/booking/:id/status', adminAuth, (req, res) => {
+app.post('/api/admin/booking/:id/status', adminAuth, asyncRoute(async (req, res) => {
   const id = req.params.id;
   const { status } = req.body || {};
   if (!['pending', 'confirmed', 'cancelled', 'completed'].includes(status)) return res.status(400).json({ error: 'Invalid booking status' });
-  const data = loadData();
+  const data = await loadData();
   const bookings = data.bookings || [];
   const b = bookings.find(x => x.id === id);
   if (!b) return res.status(404).json({ error: 'Booking not found' });
   b.status = status || b.status;
-  saveData(data);
+  await saveData(data);
   res.json({ ok: true, booking: b });
-});
+}));
 
 // Delete booking
-app.delete('/api/admin/booking/:id', adminAuth, (req, res) => {
+app.delete('/api/admin/booking/:id', adminAuth, asyncRoute(async (req, res) => {
   const id = req.params.id;
-  const data = loadData();
+  const data = await loadData();
   data.bookings = (data.bookings || []).filter(x => x.id !== id);
-  saveData(data);
+  await saveData(data);
   res.json({ ok: true });
-});
+}));
 
 // Delete signup
-app.delete('/api/admin/signup/:id', adminAuth, (req, res) => {
+app.delete('/api/admin/signup/:id', adminAuth, asyncRoute(async (req, res) => {
   const id = req.params.id;
-  const data = loadData();
+  const data = await loadData();
   data.signups = (data.signups || []).filter(x => x.id !== id);
-  saveData(data);
+  await saveData(data);
   res.json({ ok: true });
-});
+}));
 
 app.use('/api', (req, res) => res.status(404).json({ error: 'API endpoint not found.' }));
 app.use((err, req, res, next) => {
@@ -477,15 +487,18 @@ app.use((err, req, res, next) => {
 });
 
 if (require.main === module) {
-  storage.ready();
+  (async () => {
+  await storage.ready();
+  if (await require('./bootstrap-owner.cjs').bootstrapOwner(storage)) console.log('Private owner account initialized. Remove ADMIN_BOOTSTRAP_PASSWORD after verifying access.');
   const listener = app.listen(PORT, () => {
     console.log(`Server listening on http://localhost:${PORT}`);
   });
   const shutdown = () => {
-    listener.close(() => { storage.close(); process.exit(0); });
+    listener.close(async () => { await storage.close(); process.exit(0); });
     setTimeout(() => process.exit(1), 10000).unref();
   };
   process.once('SIGTERM', shutdown);
   process.once('SIGINT', shutdown);
+  })().catch(async error => { console.error('Backend startup failed:', error.message); await storage.close(); process.exitCode = 1; });
 }
 module.exports = app;

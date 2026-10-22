@@ -109,7 +109,16 @@ when rebuilding images.
 
 ## Storage and deployment
 
-SQLite is now the default, using Node 24's built-in driver. Customer collections
+For no-card hosting, set `DATABASE_URL` to a managed Neon Postgres connection
+string and use `render-free.yaml` (or the matching Free web-service settings).
+The asynchronous Postgres adapter uses atomic versioned writes and retries
+conflicts without losing or duplicating enquiries. It verifies database TLS
+certificates. No local disk is needed in this mode. See [BACKEND_SETUP.md](BACKEND_SETUP.md)
+for owner bootstrap and frontend connection steps. The first request after
+Render sleeps can be slower; the public form allows 90 seconds before reporting
+a timeout and retains details for retry.
+
+Without `DATABASE_URL`, SQLite is the local default, using Node 24's built-in driver. Customer collections
 are stored in a versioned database record. Writes commit atomically with WAL
 and full synchronization. Stale writes return HTTP 409 instead of silently
 overwriting newer records. Run one backend service with its own persistent

@@ -9,16 +9,22 @@ async function start(t, overrides = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'roy-test-'));
   const dataFile = path.join(dir, 'records.json');
   const previous = { ...process.env };
-  const { sqlite, ...environment } = overrides;
-  Object.assign(process.env, { DATA_FILE: dataFile, DATABASE_FILE: sqlite ? path.join(dir, 'roy.sqlite') : '', JWT_SECRET: 'test-only-secret-at-least-32-characters-long', ADMIN_EMAIL: 'owner@example.com', SMTP_HOST: '', ...environment });
+  const { sqlite, asynchronous, ...environment } = overrides;
+  Object.assign(process.env, { DATABASE_URL: '', DATA_FILE: dataFile, DATABASE_FILE: sqlite ? path.join(dir, 'roy.sqlite') : '', JWT_SECRET: 'test-only-secret-at-least-32-characters-long', ADMIN_EMAIL: 'owner@example.com', SMTP_HOST: '', ...environment });
   delete require.cache[require.resolve('../server.js')];
-  let app = require('../server.js');
+  const configure = app => {
+    if (!asynchronous) return;
+    const read = app.locals.storage.read, write = app.locals.storage.write;
+    app.locals.storage.read = async () => { await new Promise(setImmediate); return read(); };
+    app.locals.storage.write = async data => { await new Promise(setImmediate); return write(data); };
+  };
+  let app = require('../server.js'); configure(app);
   let server = app.listen(0, '127.0.0.1');
   await new Promise(resolve => server.once('listening', resolve));
   t.after(async () => { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); app.locals.storage.close(); process.env = previous; fs.rmSync(dir, { recursive: true, force: true }); });
   return { base: `http://127.0.0.1:${server.address().port}`, dataFile, dir, app, async restart() {
     server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); app.locals.storage.close();
-    delete require.cache[require.resolve('../server.js')]; app = require('../server.js');
+    delete require.cache[require.resolve('../server.js')]; app = require('../server.js'); configure(app);
     server = app.listen(0, '127.0.0.1'); await new Promise(resolve => server.once('listening', resolve));
     return `http://127.0.0.1:${server.address().port}`;
   } };
@@ -146,12 +152,12 @@ test('public pages have crawlable portfolio markup, canonical links and sitemap'
 });
 
 test('SQLite bookings survive restart and retries cannot duplicate or expose another enquiry', async t => {
-  const application = await start(t, { sqlite: true, FRONTEND_URL: 'https://oluwanifmei.github.io' });
+  const application = await start(t, { sqlite: true, asynchronous: true, FRONTEND_URL: 'https://oluwanifmei.github.io' });
   let base = application.base;
   assert.equal((await request(base, '/api/ready')).status, 200);
   const credentials = { name: 'Owner', email: 'owner@example.com', password: 'test-password-123' };
   await request(base, '/api/register', credentials);
-  const records = application.app.locals.storage.read(); records.users[0].adminApproved = true; application.app.locals.storage.write(records);
+  const records = await application.app.locals.storage.read(); records.users[0].adminApproved = true; await application.app.locals.storage.write(records);
   const login = await request(base, '/api/login', credentials); const cookie = login.headers.get('set-cookie').split(';')[0];
   const key = { 'Idempotency-Key': 'sqlite-request-key-12345', Origin: 'https://oluwanifmei.github.io' };
   const preflight = await fetch(base + '/api/booking', { method: 'OPTIONS', headers: { Origin: key.Origin, 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': 'content-type,idempotency-key' } });
