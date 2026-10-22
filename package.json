@@ -1,10 +1,13 @@
 {
   "name": "nifemi-photography-backend",
   "version": "1.0.0",
-  "description": "Simple Express backend for signups and bookings (demo)",
+  "description": "Photography portfolio with persistent bookings and a protected owner dashboard",
+  "engines": { "node": ">=24 <25" },
   "main": "server.js",
   "scripts": {
     "build:pages": "node tools/build-pages.cjs",
+    "admin:create": "node tools/create-admin.cjs",
+    "data:backup": "node tools/backup-data.cjs",
     "start": "node server.js",
     "test": "node --test tests/*.test.cjs"
   },

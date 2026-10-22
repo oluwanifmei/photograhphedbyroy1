@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const $ = id => document.getElementById(id);
   const notice = (message, error = false) => { $('adminNotice').textContent = message; $('adminNotice').dataset.state = error ? 'error' : 'success'; };
-  let page = 1, total = 0, loading = false;
+  let page = 1, total = 0, loadVersion = 0;
   const limit = 20;
   const query = () => new URLSearchParams({ search: $('bookingSearch').value.trim(), status: $('bookingStatusFilter').value });
   const node = (tag, text, className) => { const el = document.createElement(tag); if (text != null) el.textContent = text; if (className) el.className = className; return el; };
@@ -29,21 +29,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   async function refresh() {
-    if (loading) return;
-    loading = true; $('previousBookings').disabled = true; $('nextBookings').disabled = true;
+    const version = ++loadVersion;
+    $('previousBookings').disabled = true; $('nextBookings').disabled = true;
     try {
       const params = query(); params.set('page', page); params.set('limit', limit);
       const [summary, bookings] = await Promise.all([RoyAPI.request('/api/admin/summary'), RoyAPI.request('/api/admin/bookings?' + params)]);
+      if (version !== loadVersion) return;
       total = bookings.total;
-      if (page > 1 && !bookings.items.length) { page--; loading = false; return refresh(); }
+      if (page > 1 && !bookings.items.length) { page--; return refresh(); }
       $('metricTotal').textContent = summary.total; $('metricPending').textContent = summary.pending; $('metricConfirmed').textContent = summary.confirmed; $('metricClients').textContent = summary.clients;
       renderRows(bookings.items); $('bookingPage').textContent = total ? `Page ${page} of ${Math.ceil(total / limit)} · ${total} enquiries` : 'No enquiries yet';
       $('adminWorkspace').hidden = false; $('adminLoginForm').hidden = true; $('adminLogout').hidden = false;
       notice('');
     } catch (err) {
+      if (version !== loadVersion) return;
       notice(err.status === 401 ? 'Sign in to access your studio.' : err.status === 403 ? 'This account needs verified owner access. Sign in with the owner account.' : err.message, err.status !== 401);
-      if (err.status === 401 || err.status === 403) { $('adminWorkspace').hidden = true; $('adminLoginForm').hidden = false; }
-    } finally { loading = false; $('previousBookings').disabled = page <= 1; $('nextBookings').disabled = page * limit >= total; }
+      if (err.status === 401 || err.status === 403) { $('adminWorkspace').hidden = true; $('adminLoginForm').hidden = false; $('adminLogout').hidden = true; $('bookingRows').replaceChildren(); $('signupList').replaceChildren(); }
+    } finally { if (version === loadVersion) { $('previousBookings').disabled = page <= 1; $('nextBookings').disabled = page * limit >= total; } }
   }
   $('adminLoginForm').addEventListener('submit', async event => {
     event.preventDefault(); const button = event.currentTarget.querySelector('button'); button.disabled = true;

@@ -3,7 +3,7 @@ const path = require('path');
 const routes = { '/': 'home', '/portfolio': 'gallery', '/services': 'services', '/before-after': 'before-after', '/stories': 'blog', '/book': 'booking', '/about': 'about', '/contact': 'contact' };
 const titles = { home: 'Portrait & Event Photographer in Lagos & Ibadan', gallery: 'Photography Portfolio', services: 'Photography Sessions & Packages', 'before-after': 'The Editing Process', blog: 'Photography Stories', booking: 'Request a Photography Session', about: 'Meet Oluwanifemi Roy', contact: 'Contact Roy in Lagos & Ibadan' };
 const escape = value => value.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-function renderPage(html, route, siteURL, { staticHosting = false } = {}) {
+function renderPage(html, route, siteURL, { staticHosting = false, backendURL = '' } = {}) {
   const site = new URL(siteURL.endsWith('/') ? siteURL : siteURL + '/');
   const origin = site.href.replace(/\/$/, '');
   const page = routes[route];
@@ -33,7 +33,8 @@ function renderPage(html, route, siteURL, { staticHosting = false } = {}) {
         return `href="${escape(site.pathname + pathname + (routes[target] && target !== '/' ? '/' : '') + suffix)}"`;
       })
       .replace(/href="#([^"]*)"/g, (_, hash) => `href="${escape(new URL(pageURL).pathname)}#${hash}"`)
-      .replace('<head>', `<head>\n<base href="${escape(site.pathname)}" />\n<meta name="roy-static-hosting" content="true" />`)
+      .replace('<head>', `<head>\n<base href="${escape(site.pathname)}" />\n<meta name="roy-static-hosting" content="true" />`);
+    if (!backendURL) html = html
       .replace('<div class="account-dropdown" id="accountDropdown">', '<div class="account-dropdown" id="accountDropdown" style="display:none">')
       .replace('No account or payment needed. Roy will review your request and get back to you by email.', 'No account or payment needed. Continue on WhatsApp to send your details directly to Roy.')
       .replace('Send my request <span', 'Continue on WhatsApp <span');

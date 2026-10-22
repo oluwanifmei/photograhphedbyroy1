@@ -38,6 +38,14 @@ test('Pages build preserves photos and resolves every internal page and asset un
   for (const name of ['sitemap.xml', 'robots.txt', '404.html', '.nojekyll']) assert.ok(fs.existsSync(path.join(output, name)));
   for (const name of fs.readdirSync(root).filter(name => /\.(jpe?g|png|heic)$/i.test(name))) assert.deepEqual(fs.readFileSync(path.join(output, name)), fs.readFileSync(path.join(root, name)));
   assert.match(fs.readFileSync(path.join(output, 'login.html'), 'utf8'), /Online account access is not available yet/);
+  buildPages(site, output, { backendURL: 'https://roy-api.example.com/' });
+  assert.match(fs.readFileSync(path.join(output, 'config.js'), 'utf8'), /RENDER_BACKEND_URL: "https:\/\/roy-api.example.com"/);
+  assert.match(fs.readFileSync(path.join(output, 'admin.html'), 'utf8'), /url=https:\/\/roy-api.example.com\/admin.html/);
+  const connected = fs.readFileSync(path.join(output, 'book/index.html'), 'utf8');
+  assert.match(connected, /Send my request/);
+  assert.doesNotMatch(connected, /id="accountDropdown" style="display:none"/);
+  assert.throws(() => buildPages(site, output, { backendURL: 'http://unsecured.example.com/' }), /HTTPS server origin/);
+  assert.throws(() => buildPages(site, output, { backendURL: 'https://user:password@example.com/' }), /HTTPS server origin/);
 });
 
 test('static root domains and nested story anchors retain their own paths', () => {

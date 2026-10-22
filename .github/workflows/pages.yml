@@ -26,6 +26,7 @@ jobs:
       - name: Build every public page
         env:
           SITE_URL: ${{ steps.pages.outputs.base_url }}
+          BACKEND_URL: ${{ vars.BACKEND_URL }}
         run: npm run build:pages
       - name: Upload public website
         uses: actions/upload-pages-artifact@v4

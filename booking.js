@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const timeout = setTimeout(() => controller.abort(), 20000);
       try {
         const headers = { 'Content-Type': 'application/json', 'Idempotency-Key': requestKey };
-        const response = await fetch(config.API_BASE + '/api/booking', { method: 'POST', credentials: 'include', headers, body, signal: controller.signal });
+        const response = await fetch(config.API_BASE + '/api/booking', { method: 'POST', credentials: config.STATIC_HOSTING ? 'omit' : 'include', headers, body, signal: controller.signal });
         const result = await response.json();
         if (!response.ok || !result.ok) throw new Error(result.error || 'Unable to submit your booking.');
         notify('Request received' + (result.reference ? ' · Reference ' + result.reference.slice(-8).toUpperCase() : '') + '. Roy will review your details and contact you by email to confirm availability. Your session is not booked yet.', 'success');

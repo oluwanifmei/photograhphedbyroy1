@@ -809,6 +809,10 @@ document.addEventListener('click', (e) => {
 // Render dropdown items based on auth state
 const updateAccountDropdown = async () => {
   if (!accountMenu) return;
+  if (window.APP_CONFIG.STATIC_HOSTING) {
+    accountMenu.innerHTML = '<a href="login.html" class="account-menu-item">Client sign in</a><a href="admin.html" class="account-menu-item">Studio sign in</a>';
+    return;
+  }
   let user = null;
   try { user = await RoyAPI.request('/api/me'); } catch {}
   accountMenu.innerHTML = user

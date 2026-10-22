@@ -9,13 +9,19 @@ async function start(t, overrides = {}) {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'roy-test-'));
   const dataFile = path.join(dir, 'records.json');
   const previous = { ...process.env };
-  Object.assign(process.env, { DATA_FILE: dataFile, JWT_SECRET: 'test-only-secret-at-least-32-characters-long', ADMIN_EMAIL: 'owner@example.com', SMTP_HOST: '', ...overrides });
+  const { sqlite, ...environment } = overrides;
+  Object.assign(process.env, { DATA_FILE: dataFile, DATABASE_FILE: sqlite ? path.join(dir, 'roy.sqlite') : '', JWT_SECRET: 'test-only-secret-at-least-32-characters-long', ADMIN_EMAIL: 'owner@example.com', SMTP_HOST: '', ...environment });
   delete require.cache[require.resolve('../server.js')];
-  const app = require('../server.js');
-  const server = app.listen(0, '127.0.0.1');
+  let app = require('../server.js');
+  let server = app.listen(0, '127.0.0.1');
   await new Promise(resolve => server.once('listening', resolve));
-  t.after(async () => { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); process.env = previous; fs.rmSync(dir, { recursive: true, force: true }); });
-  return { base: `http://127.0.0.1:${server.address().port}`, dataFile, dir };
+  t.after(async () => { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); app.locals.storage.close(); process.env = previous; fs.rmSync(dir, { recursive: true, force: true }); });
+  return { base: `http://127.0.0.1:${server.address().port}`, dataFile, dir, app, async restart() {
+    server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); app.locals.storage.close();
+    delete require.cache[require.resolve('../server.js')]; app = require('../server.js');
+    server = app.listen(0, '127.0.0.1'); await new Promise(resolve => server.once('listening', resolve));
+    return `http://127.0.0.1:${server.address().port}`;
+  } };
 }
 const booking = { name: 'Test Customer', email: 'client@example.com', service: 'Portrait', date: '2026-12-01', time: '10:00' };
 async function request(base, route, body, token, extra = {}) {
@@ -83,6 +89,7 @@ test('storage failures return errors and preserve existing records', async t => 
   assert.equal(fs.readFileSync(dataFile, 'utf8'), original);
   fs.rmSync(dataFile + '.tmp', { recursive: true });
   fs.writeFileSync(dataFile, 'corrupt');
+  assert.equal((await request(base, '/api/ready')).status, 503);
   assert.equal((await request(base, '/api/booking', booking)).status, 500);
   assert.equal(fs.readFileSync(dataFile, 'utf8'), 'corrupt');
 });
@@ -136,4 +143,30 @@ test('public pages have crawlable portfolio markup, canonical links and sitemap'
   assert.match(html, /class="portfolio-open"/);
   assert.match(await (await fetch(base + '/sitemap.xml')).text(), /https:\/\/roy.example.com\/portfolio/);
   assert.match(await (await fetch(base + '/robots.txt')).text(), /Disallow: \/api\//);
+});
+
+test('SQLite bookings survive restart and retries cannot duplicate or expose another enquiry', async t => {
+  const application = await start(t, { sqlite: true, FRONTEND_URL: 'https://oluwanifmei.github.io' });
+  let base = application.base;
+  assert.equal((await request(base, '/api/ready')).status, 200);
+  const credentials = { name: 'Owner', email: 'owner@example.com', password: 'test-password-123' };
+  await request(base, '/api/register', credentials);
+  const records = application.app.locals.storage.read(); records.users[0].adminApproved = true; application.app.locals.storage.write(records);
+  const login = await request(base, '/api/login', credentials); const cookie = login.headers.get('set-cookie').split(';')[0];
+  const key = { 'Idempotency-Key': 'sqlite-request-key-12345', Origin: 'https://oluwanifmei.github.io' };
+  const preflight = await fetch(base + '/api/booking', { method: 'OPTIONS', headers: { Origin: key.Origin, 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': 'content-type,idempotency-key' } });
+  assert.equal(preflight.status, 204); assert.match(preflight.headers.get('access-control-allow-headers'), /idempotency-key/i);
+  const first = await request(base, '/api/booking', booking, null, key); assert.equal(first.status, 201); const receipt = await first.json();
+  assert.equal((await request(base, '/api/booking', { ...booking, email: 'other@example.com' }, null, key)).status, 409);
+  const more = await Promise.all(Array.from({ length: 8 }, (_, i) => request(base, '/api/booking', { ...booking, name: 'Concurrent ' + i }, null, { 'Idempotency-Key': 'concurrent-sqlite-key-' + i })));
+  assert.ok(more.every(response => response.status === 201));
+  base = await application.restart();
+  const retry = await (await request(base, '/api/booking', booking, null, key)).json(); assert.equal(retry.reference, receipt.reference);
+  const headers = { Cookie: cookie };
+  const summary = await (await request(base, '/api/admin/summary', null, null, headers)).json(); assert.equal(summary.total, 9);
+  const list = await (await request(base, '/api/admin/bookings?search=Concurrent&page=1&limit=3', null, null, headers)).json(); assert.equal(list.total, 8); assert.equal(list.items.length, 3);
+  assert.equal((await request(base, '/api/admin/booking/' + receipt.reference + '/status', { status: 'confirmed' }, null, headers)).status, 200);
+  assert.equal((await request(base, '/api/admin/export/bookings?status=confirmed', null, null, headers)).status, 200);
+  assert.equal((await request(base, '/api/admin/bookings')).status, 401);
+  assert.equal((await request(base, '/api/not-a-route')).headers.get('content-type').includes('application/json'), true);
 });

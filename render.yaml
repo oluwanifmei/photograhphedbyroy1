@@ -1,15 +1,27 @@
 services:
   - type: web
     name: nifemi-photography-backend
-    env: node
-    buildCommand: npm install
+    runtime: node
+    plan: starter
+    buildCommand: npm install --omit=dev
     startCommand: npm start
+    healthCheckPath: /api/ready
+    disk:
+      name: roy-bookings
+      mountPath: /var/data
+      sizeGB: 1
     envVars:
       - key: PORT
         value: 10000
+      - key: NODE_VERSION
+        value: '24'
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_FILE
+        value: /var/data/roy.sqlite
       - key: JWT_SECRET
         generateValue: true
       - key: ADMIN_EMAIL
-        value: admin@example.com
-      - key: FRONTEND_URL
         sync: false
+      - key: FRONTEND_URL
+        value: https://oluwanifmei.github.io

@@ -1,15 +1,18 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
-const { randomUUID, randomBytes } = require('crypto');
+const { randomUUID, randomBytes, createHash } = require('crypto');
+const { createStorage } = require('./storage.cjs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_FILE && !process.env.DATA_FILE) throw new Error('Set DATABASE_FILE to a path on persistent storage before starting production.');
+const storage = createStorage();
+app.locals.storage = storage;
 
 app.disable('x-powered-by');
 if (process.env.RENDER || process.env.TRUST_PROXY === '1') app.set('trust proxy', 1);
@@ -74,28 +77,8 @@ app.use((req, res, next) => {
   return res.sendStatus(404);
 });
 
-const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'data.json');
-
-function loadData() {
-  try {
-    if (!fs.existsSync(DATA_FILE)) {
-      const initial = { users: [], signups: [], bookings: [] };
-      fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
-      saveData(initial);
-      return initial;
-    }
-    const raw = fs.readFileSync(DATA_FILE, 'utf8');
-    return JSON.parse(raw);
-  } catch (err) {
-    throw err;
-  }
-}
-
-function saveData(data) {
-  const temporary = DATA_FILE + '.tmp';
-  fs.writeFileSync(temporary, JSON.stringify(data, null, 2));
-  fs.renameSync(temporary, DATA_FILE);
-}
+const loadData = () => storage.read();
+const saveData = data => storage.write(data);
 
 // Nodemailer transporter (uses env vars)
 function getTransporter() {
@@ -150,6 +133,10 @@ function verifyToken(token) {
 // Public endpoints
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() });
+});
+app.get('/api/ready', (req, res) => {
+  try { storage.ready(); res.json({ status: 'ready', storage: storage.engine }); }
+  catch (error) { console.error('Storage readiness failed:', error.message); res.status(503).json({ status: 'unavailable' }); }
 });
 
 app.get('/api/signups', adminAuth, (req, res) => {
@@ -242,7 +229,7 @@ app.post('/api/resend-confirmation', throttle, asyncRoute(async (req, res) => {
 }));
 
 // Booking endpoint (public)
-app.post('/api/booking', (req, res) => {
+app.post('/api/booking', throttle, (req, res) => {
   const data = loadData();
   const input = req.body || {};
   const limits = { name: 200, email: 254, phone: 50, service: 100, date: 10, time: 5, message: 5000, location: 500, priority: 100 };
@@ -261,11 +248,17 @@ app.post('/api/booking', (req, res) => {
     entry.userId = payload.id;
   }
   const requestKey = req.get('Idempotency-Key');
+  const requestDigest = createHash('sha256').update(JSON.stringify({ ...Object.fromEntries(Object.keys(limits).map(key => [key, entry[key]])), userId: entry.userId || null })).digest('hex');
   if (requestKey && !/^[a-zA-Z0-9-]{16,100}$/.test(requestKey)) return res.status(400).json({ error: 'Invalid request key' });
   if (requestKey) {
     const existing = (data.bookings || []).find(b => b.requestKey === requestKey);
-    if (existing) return res.json({ ok: true, reference: existing.id });
+    if (existing) {
+      const existingDigest = existing.requestDigest || createHash('sha256').update(JSON.stringify({ ...Object.fromEntries(Object.keys(limits).map(key => [key, existing[key] || ''])), userId: existing.userId || null })).digest('hex');
+      if (existingDigest !== requestDigest) return res.status(409).json({ error: 'This request key belongs to different booking details. Please submit a new request.' });
+      return res.json({ ok: true, reference: existing.id });
+    }
     entry.requestKey = requestKey;
+    entry.requestDigest = requestDigest;
   }
   data.bookings = data.bookings || [];
   data.bookings.push(entry);
@@ -377,6 +370,7 @@ app.get('/api/admin/bookings', adminAuth, (req, res) => {
 app.post('/api/admin/bookings/bulk', adminAuth, (req, res) => {
   const { ids, action, status } = req.body || {};
   if (!Array.isArray(ids) || ids.length === 0) return res.status(400).json({ error: 'ids required' });
+  if (ids.length > 100 || ids.some(id => typeof id !== 'string')) return res.status(400).json({ error: 'Provide at most 100 booking IDs.' });
   const data = loadData();
   if (action === 'delete') {
     const before = (data.bookings || []).length;
@@ -446,7 +440,7 @@ app.get('/api/admin/user/:id', adminAuth, (req, res) => {
 // Update booking status
 app.post('/api/admin/booking/:id/status', adminAuth, (req, res) => {
   const id = req.params.id;
-  const { status } = req.body;
+  const { status } = req.body || {};
   if (!['pending', 'confirmed', 'cancelled', 'completed'].includes(status)) return res.status(400).json({ error: 'Invalid booking status' });
   const data = loadData();
   const bookings = data.bookings || [];
@@ -475,14 +469,22 @@ app.delete('/api/admin/signup/:id', adminAuth, (req, res) => {
   res.json({ ok: true });
 });
 
+app.use('/api', (req, res) => res.status(404).json({ error: 'API endpoint not found.' }));
 app.use((err, req, res, next) => {
   console.error(err.message);
-  res.status(err.status === 413 ? 413 : err.status === 400 ? 400 : 500).json({ error: err.status === 400 ? 'Invalid request body.' : 'Unable to save or load your request. Please try again.' });
+  res.status([400, 409, 413].includes(err.status) ? err.status : 500).json({ error: err.status === 400 ? 'Invalid request body.' : err.status === 409 ? err.message : 'Unable to save or load your request. Please try again.' });
 });
 
 if (require.main === module) {
-  app.listen(PORT, () => {
+  storage.ready();
+  const listener = app.listen(PORT, () => {
     console.log(`Server listening on http://localhost:${PORT}`);
   });
+  const shutdown = () => {
+    listener.close(() => { storage.close(); process.exit(0); });
+    setTimeout(() => process.exit(1), 10000).unref();
+  };
+  process.once('SIGTERM', shutdown);
+  process.once('SIGINT', shutdown);
 }
 module.exports = app;

@@ -22,7 +22,7 @@ when deploying the application with the Express server.
 
 ## Express server and online accounts
 
-Install dependencies with `npm install` (or `pnpm install`). Run checks with
+Use Node.js 24. Install dependencies with `npm install` (or `pnpm install`). Run checks with
 `npm test`, then start with `npm start` and open http://localhost:3000.
 
 Create a local `.env` from `.env.example`. Replace `JWT_SECRET` with a random
@@ -36,15 +36,18 @@ node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 Set `ADMIN_EMAIL` to the owner's real email. With SMTP configured, register
 that account and confirm its email before signing in through `admin.html`.
 Public signup with local auto-confirmation never grants administrator access.
-Without SMTP, stop the server, supply a private `ADMIN_PASSWORD` environment
+Without SMTP, supply a private `ADMIN_PASSWORD` environment
 variable (at least 12 characters), and run `node tools/create-admin.cjs` once
 to provision a new owner account. Remove `ADMIN_PASSWORD` afterward. The tool
 refuses to overwrite an existing account. Existing owners must verify through
 SMTP or be reviewed before an explicit migration.
+With SQLite this command can run from the host's service shell; stop the
+server before provisioning only when using legacy JSON storage.
 There is no built-in admin password or offline login. Browser authentication
 uses an HttpOnly session cookie. Changing a password requires the current
 password and invalidates older sessions. Login and registration are limited
-to 15 attempts per IP per endpoint in 15 minutes per running instance.
+to 15 attempts per IP per endpoint in 15 minutes per running instance;
+the public booking endpoint uses the same limit.
 Verification links expire after 24 hours; the login page offers resending.
 
 The single booking form at `/book` saves a pending request to the server.
@@ -75,14 +78,21 @@ path (for example `videos/roy-on-set.mp4`), then run the story builder. The
 section will use a real video player with controls instead of the photo diary.
 The filename may contain letters, numbers, underscores and hyphens.
 
-For a separate frontend host, set `RENDER_BACKEND_URL` in `config.js` to the
-backend's HTTPS URL. Leave it empty when the Express server serves the site.
+To connect GitHub Pages, add a repository Actions **variable** named
+`BACKEND_URL` with the deployed server's HTTPS origin, then rerun the Pages
+workflow. The build enables API booking and restores account/studio links.
+Those links open the Express-hosted sign-in and dashboard, keeping private
+sessions on the server's own site. Guest bookings from Pages do not depend
+on third-party cookies. Until this variable is set, Pages keeps the working
+WhatsApp enquiry flow and does not advertise unavailable online accounts.
+For a manually built separate frontend, set `RENDER_BACKEND_URL` in `config.js`.
+Leave it empty when the Express server serves the site.
 Set `PUBLIC_URL` to the backend's public URL for email confirmation links.
 Render's `RENDER_EXTERNAL_URL` is also recognised automatically.
-For separate frontend and backend sites, set `FRONTEND_URL` to the frontend's
-exact origin and `CROSS_SITE_COOKIES=true` on the backend, served over HTTPS
-with `NODE_ENV=production`. Third-party-cookie restrictions can still prevent
-cross-site sessions; serving frontend and API on the same site is preferred.
+Set `FRONTEND_URL` to the frontend's exact origin (for this GitHub Pages site,
+`https://oluwanifmei.github.io`). The generated studio/account links use
+first-party cookies, so `CROSS_SITE_COOKIES` is not needed for that setup.
+Keep `NODE_ENV=production` on the HTTPS backend so cookies are Secure.
 
 Set `SITE_URL` to the real public website origin for canonical URLs, Open
 Graph images and the generated `/sitemap.xml` and `/robots.txt`. The Express
@@ -98,20 +108,29 @@ when rebuilding images.
 
 ## Storage and deployment
 
-The existing small-site JSON storage is retained. Writes use a temporary
-file and rename, return errors on failure, and never replace corrupt data
-with an empty database. Run **one Node process/instance** only; this storage
-does not coordinate writes across multiple instances. Account creation hashes
-passwords asynchronously before reading the latest records, so concurrent
-registrations cannot overwrite one another. Move to a transactional database
-before running multiple processes or scaling the service.
+SQLite is now the default, using Node 24's built-in driver. Customer collections
+are stored in a versioned database record. Writes commit atomically with WAL
+and full synchronization. Stale writes return HTTP 409 instead of silently
+overwriting newer records. Run one backend service with its own persistent
+disk; independent replicas must not use separate copies of the database.
 
-On Render, attach persistent storage and set `DATA_FILE` to a file on its
-mounted path, for example `/var/data/roy/data.json`. Create the parent folder
-before starting the app. The default `data.json` beside `server.js` is useful
-locally but is not durable on ephemeral hosting. The supplied Render YAML
-does not provision paid storage. Back up existing records before changing
-this path and copy them to the new path when migrating.
+Set `DATABASE_FILE=/var/data/roy.sqlite` on the mounted persistent disk. Production
+refuses to start without an explicit database or legacy data path. Local development
+defaults to `data/roy.sqlite`. If an old JSON database exists, leave it at `data.json`
+or set `DATA_FILE` to its location. The first SQLite initialization imports its
+users, password hashes, bookings and references without modifying that JSON file.
+Later restarts never reimport it over the initialized SQLite database. Corrupt
+source data causes an error rather than being replaced with empty records.
+Setting only `DATA_FILE` retains the legacy single-process JSON mode.
+
+Back up before migrating. Set `BACKUP_FILE` to a new private destination and run
+`npm run data:backup` for a consistent SQLite backup (or JSON copy in legacy mode).
+Keep backups off the public website and retain a separate off-host copy. To restore,
+stop the server and point `DATABASE_FILE` at the recovered SQLite backup.
+
+The Render Blueprint specifies Node 24, `/api/ready` health checks and a 1 GB
+persistent disk on a paid Starter service. No hosting account or paid service
+has been provisioned. See [BACKEND_SETUP.md](BACKEND_SETUP.md) for deployment.
 
 These code changes do not configure or verify the hosting environment.
 The SMTP provider, owner email, public domain and persistent storage still

@@ -4,3 +4,9 @@ data.json.tmp
 .env
 dist/
 .pages-test/
+data/
+*.sqlite
+*.sqlite-*
+*.db
+*.db-*
+backups/
