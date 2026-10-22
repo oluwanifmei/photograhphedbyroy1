@@ -2,7 +2,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { revision, validate, conflict } = require('./storage.cjs');
 function poolOptions(databaseURL) {
-  const url = new URL(databaseURL);
+  let url;
+  try { url = new URL(databaseURL); }
+  catch { throw new Error('DATABASE_URL must be a full PostgreSQL connection string copied from your database dashboard.'); }
   if (!['postgres:', 'postgresql:'].includes(url.protocol)) throw new Error('DATABASE_URL must be a PostgreSQL connection string.');
   const local = ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
   for (const key of ['sslmode', 'sslcert', 'sslkey', 'sslrootcert', 'channel_binding']) url.searchParams.delete(key);
