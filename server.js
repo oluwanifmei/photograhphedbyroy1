@@ -6,39 +6,95 @@ const path = require('path');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
+const { randomUUID, randomBytes } = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
-app.use(express.json());
+app.disable('x-powered-by');
+if (process.env.RENDER || process.env.TRUST_PROXY === '1') app.set('trust proxy', 1);
+const allowedOrigins = new Set([process.env.FRONTEND_URL, process.env.PUBLIC_URL, process.env.RENDER_EXTERNAL_URL].filter(Boolean).map(url => new URL(url).origin));
+app.use(cors({ origin: (origin, callback) => callback(null, allowedOrigins.has(origin)), credentials: true }));
+app.use(express.json({ limit: '32kb' }));
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  if (!['GET', 'HEAD', 'OPTIONS'].includes(req.method) && req.headers.origin && req.headers.origin !== req.protocol + '://' + req.get('host') && !allowedOrigins.has(req.headers.origin)) return res.status(403).json({ error: 'Request origin not allowed.' });
+  if (!req.headers.authorization) {
+    const session = (req.headers.cookie || '').split(';').map(part => part.trim()).find(part => part.startsWith('roy_session='));
+    if (session) {
+      const token = session.slice('roy_session='.length);
+      if (verifyToken(token)) req.headers.authorization = 'Bearer ' + token;
+      else res.clearCookie('roy_session', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: process.env.CROSS_SITE_COOKIES === 'true' ? 'none' : 'lax', path: '/' });
+    }
+  }
+  next();
+});
+const asyncRoute = handler => (req, res, next) => Promise.resolve(handler(req, res, next)).catch(next);
+const attempts = new Map();
+function throttle(req, res, next) {
+  const now = Date.now();
+  for (const [key, record] of attempts) if (record.until <= now) attempts.delete(key);
+  const key = req.ip + ':' + req.path;
+  let record = attempts.get(key);
+  if (!record) {
+    if (attempts.size >= 10000) return res.status(429).json({ error: 'Please try again later.' });
+    record = { count: 0, until: now + 15 * 60 * 1000 }; attempts.set(key, record);
+  }
+  if (++record.count > 15) { res.setHeader('Retry-After', Math.ceil((record.until - now) / 1000)); return res.status(429).json({ error: 'Too many attempts. Please try again in 15 minutes.' }); }
+  next();
+}
+const cookieOptions = { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: process.env.CROSS_SITE_COOKIES === 'true' ? 'none' : 'lax', path: '/', maxAge: 7 * 86400000 };
+if (cookieOptions.sameSite === 'none' && !cookieOptions.secure) throw new Error('Cross-site cookies require production HTTPS.');
+function sessionResponse(res, user) {
+  const token = createToken({ id: user.id, version: user.tokenVersion || 0 });
+  res.cookie('roy_session', token, cookieOptions);
+  return token;
+}
+function isOwner(user) {
+  return !!user && !!process.env.ADMIN_EMAIL && user.email.toLowerCase() === process.env.ADMIN_EMAIL.toLowerCase() && !!(user.adminApproved || user.emailVerifiedAt);
+}
+app.use('/api', (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store');
+  next();
+});
+
+app.use(require('./page-renderer.cjs'));
 
 // Serve static files
-app.use(express.static(path.join(__dirname)));
+const publicFiles = new Set(['index.html', 'booking.html', 'signup.html', 'login.html', 'account.html', 'admin.html', 'styles.css', 'styles-new.css', 'forms.css', 'script.js', 'booking.js', 'signup.js', 'login.js', 'account.js', 'admin.js', 'config.js', 'refinements.css', 'portfolio.js', 'auth.js', 'robots.txt']);
+publicFiles.add('stories.js');
+const servePublic = express.static(__dirname, { dotfiles: 'deny' });
+app.use((req, res, next) => {
+  let name;
+  try { name = decodeURIComponent(req.path).slice(1); } catch { return res.sendStatus(400); }
+  const asset = /^(?:My webproject\/|images\/|videos\/)?[^/]+\.(?:jpe?g|png|webp|svg|mp4|webm|ico)$/i.test(name);
+  if (req.path === '/' || publicFiles.has(name) || asset) return servePublic(req, res, next);
+  if (req.path.startsWith('/api/')) return next();
+  return res.sendStatus(404);
+});
 
-const DATA_FILE = path.join(__dirname, 'data.json');
+const DATA_FILE = process.env.DATA_FILE || path.join(__dirname, 'data.json');
 
 function loadData() {
   try {
     if (!fs.existsSync(DATA_FILE)) {
       const initial = { users: [], signups: [], bookings: [] };
-      fs.writeFileSync(DATA_FILE, JSON.stringify(initial, null, 2));
+      fs.mkdirSync(path.dirname(DATA_FILE), { recursive: true });
+      saveData(initial);
       return initial;
     }
     const raw = fs.readFileSync(DATA_FILE, 'utf8');
     return JSON.parse(raw);
   } catch (err) {
-    console.error('Failed to load data file:', err);
-    return { users: [], signups: [], bookings: [] };
+    throw err;
   }
 }
 
 function saveData(data) {
-  try {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
-  } catch (err) {
-    console.error('Failed to save data file:', err);
-  }
+  const temporary = DATA_FILE + '.tmp';
+  fs.writeFileSync(temporary, JSON.stringify(data, null, 2));
+  fs.renameSync(temporary, DATA_FILE);
 }
 
 // Nodemailer transporter (uses env vars)
@@ -58,20 +114,23 @@ function getTransporter() {
 function sendConfirmationEmail(user, token) {
   const transporter = getTransporter();
   if (!transporter) return Promise.resolve();
-  const frontend = process.env.FRONTEND_URL || `http://localhost:${PORT}`;
+  const frontend = process.env.PUBLIC_URL || process.env.RENDER_EXTERNAL_URL || process.env.FRONTEND_URL || `http://localhost:${PORT}`;
   const confirmUrl = `${frontend}/api/confirm?token=${token}`;
   const mail = {
     from: process.env.SMTP_FROM || 'no-reply@example.com',
     to: user.email,
     subject: 'Confirm your email',
     text: `Hi ${user.name || ''},\n\nPlease confirm your email by visiting: ${confirmUrl}`,
-    html: `<p>Hi ${user.name || ''},</p><p>Please confirm your email by clicking <a href="${confirmUrl}">Confirm Email</a></p>`
+    // Plain text avoids treating customer input as email markup.
   };
   return transporter.sendMail(mail);
 }
 
 // Auth helpers
-const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_change_me';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET || JWT_SECRET.length < 32 || JWT_SECRET === 'replace_with_a_strong_secret') {
+  throw new Error('Set JWT_SECRET to a random secret of at least 32 characters.');
+}
 
 function createToken(payload) {
   return jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
@@ -79,7 +138,10 @@ function createToken(payload) {
 
 function verifyToken(token) {
   try {
-    return jwt.verify(token, JWT_SECRET);
+    const payload = jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] });
+    const user = (loadData().users || []).find(user => user.id === payload.id);
+    if (!user || (payload.version || 0) !== (user.tokenVersion || 0)) return null;
+    return payload;
   } catch (e) {
     return null;
   }
@@ -90,67 +152,67 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() });
 });
 
-app.get('/api/signups', (req, res) => {
+app.get('/api/signups', adminAuth, (req, res) => {
   const data = loadData();
   res.json(data.signups || []);
 });
 
-app.get('/api/bookings', (req, res) => {
+app.get('/api/bookings', adminAuth, (req, res) => {
   const data = loadData();
   res.json(data.bookings || []);
 });
 
 // Registration with password -> creates a user and signup entry
-app.post('/api/register', async (req, res) => {
+app.post('/api/register', throttle, asyncRoute(async (req, res) => {
   const { name, email, phone, password } = req.body || {};
-  if (!email) return res.status(400).json({ error: 'Email required' });
+  if (typeof name !== 'string' || !name.trim() || name.length > 200 || typeof email !== 'string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254 || typeof password !== 'string' || password.length < 8 || Buffer.byteLength(password) > 72 || (phone != null && (typeof phone !== 'string' || phone.length > 50))) return res.status(400).json({ error: 'Provide a name, valid email, and password of 8–72 bytes.' });
+  const hashed = await bcrypt.hash(password, 10);
   const data = loadData();
   const existing = (data.users || []).find(u => u.email.toLowerCase() === email.toLowerCase());
   if (existing) return res.status(400).json({ error: 'User already exists' });
 
-  const hashed = password ? await bcrypt.hash(password, 10) : null;
-  const token = Math.random().toString(36).substr(2, 20) + Date.now();
+  const token = randomBytes(32).toString('hex');
   const hasSMTP = !!process.env.SMTP_HOST;
-  const user = { id: 'u_' + Date.now(), name, email, phone, password: hashed, emailConfirmed: !hasSMTP, confirmToken: token, isAdmin: false };
+  const user = { id: 'u_' + randomUUID(), name, email, phone, password: hashed, emailConfirmed: !hasSMTP, confirmToken: token, confirmExpires: Date.now() + 86400000, tokenVersion: 0, isAdmin: false };
   data.users = data.users || [];
   data.users.push(user);
 
   // Also keep a lightweight signup record for compatibility
   data.signups = data.signups || [];
-  data.signups.push({ id: 's_' + Date.now(), name, email, phone, createdAt: new Date().toISOString() });
+  data.signups.push({ id: 's_' + randomUUID(), name, email, phone, createdAt: new Date().toISOString() });
 
   saveData(data);
 
   // Send confirmation email if SMTP configured
   let msg = 'Registered. Please confirm your email.';
   if (hasSMTP) {
-    try {
-      await sendConfirmationEmail(user, token);
-    } catch (err) {
-      console.warn('Failed to send confirmation email:', err && err.message);
+    try { await sendConfirmationEmail(user, token); } catch (err) {
+      console.warn('Confirmation email delivery failed:', err.message);
+      msg = 'Account created, but we could not send the verification email. Use Resend verification email on the login page.';
     }
   } else {
     msg = 'Registered and auto-confirmed (local mode). You can now log in.';
   }
 
   res.json({ ok: true, message: msg });
-});
+}));
 
 app.get('/api/confirm', (req, res) => {
   const token = req.query.token;
   if (!token) return res.status(400).send('Token required');
   const data = loadData();
   const user = (data.users || []).find(u => u.confirmToken === token);
-  if (!user) return res.status(400).send('Invalid token');
+  if (!user || !user.confirmExpires || user.confirmExpires < Date.now()) return res.status(400).send('Invalid or expired link. Please resend verification from the login page.');
   user.emailConfirmed = true;
+  user.emailVerifiedAt = new Date().toISOString();
   user.confirmToken = null;
   saveData(data);
   res.send('Email confirmed. You can now log in.');
 });
 
-app.post('/api/login', async (req, res) => {
+app.post('/api/login', throttle, asyncRoute(async (req, res) => {
   const { email, password } = req.body || {};
-  if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+  if (typeof email !== 'string' || typeof password !== 'string' || !email || !password) return res.status(400).json({ error: 'Email and password required' });
   const data = loadData();
   const user = (data.users || []).find(u => u.email.toLowerCase() === email.toLowerCase());
   if (!user) return res.status(400).json({ error: 'Invalid credentials' });
@@ -158,33 +220,57 @@ app.post('/api/login', async (req, res) => {
   const ok = user.password ? await bcrypt.compare(password, user.password) : false;
   if (!ok) return res.status(400).json({ error: 'Invalid credentials' });
 
-  // mark admin if matches ADMIN_EMAIL
-  if (process.env.ADMIN_EMAIL && user.email.toLowerCase() === process.env.ADMIN_EMAIL.toLowerCase()) {
-    user.isAdmin = true;
-    saveData(data);
-  }
-
-  const token = createToken({ id: user.id, email: user.email, isAdmin: !!user.isAdmin });
+  const token = sessionResponse(res, user);
   res.json({ ok: true, token });
+}));
+
+app.post('/api/logout', (req, res) => {
+  res.clearCookie('roy_session', { ...cookieOptions, maxAge: undefined });
+  res.json({ ok: true });
 });
+
+app.post('/api/resend-confirmation', throttle, asyncRoute(async (req, res) => {
+  const email = req.body?.email;
+  if (typeof email !== 'string' || email.length > 254) return res.status(400).json({ error: 'Enter your email address.' });
+  const data = loadData();
+  const user = data.users.find(user => user.email.toLowerCase() === email.toLowerCase());
+  if (user && !user.emailConfirmed && process.env.SMTP_HOST) {
+    user.confirmToken = randomBytes(32).toString('hex'); user.confirmExpires = Date.now() + 86400000; saveData(data);
+    try { await sendConfirmationEmail(user, user.confirmToken); } catch (err) { console.warn('Confirmation delivery failed:', err.message); return res.status(503).json({ error: 'Email delivery is temporarily unavailable. Please try again later.' }); }
+  }
+  res.json({ ok: true, message: 'If this account needs verification, a new link has been sent.' });
+}));
 
 // Booking endpoint (public)
 app.post('/api/booking', (req, res) => {
   const data = loadData();
-  const entry = req.body;
-  entry.id = entry.id || ('b_' + Date.now());
-  entry.createdAt = entry.createdAt || new Date().toISOString();
-  entry.status = entry.status || 'pending';
-  // If Authorization header provided and valid, attach userId
-  const auth = (req.headers.authorization || '').split(' ');
-  if (auth.length === 2 && auth[0] === 'Bearer') {
-    const payload = verifyToken(auth[1]);
-    if (payload && payload.id) entry.userId = payload.id;
+  const input = req.body || {};
+  const limits = { name: 200, email: 254, phone: 50, service: 100, date: 10, time: 5, message: 5000, location: 500, priority: 100 };
+  for (const [key, limit] of Object.entries(limits)) {
+    if (input[key] != null && (typeof input[key] !== 'string' || input[key].length > limit)) return res.status(400).json({ error: 'Invalid ' + key });
+  }
+  if (!input.name?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.email || '') || !input.service?.trim() || !/^\d{4}-\d{2}-\d{2}$/.test(input.date || '') || !Number.isFinite(Date.parse(input.date)) || new Date(input.date).toISOString().slice(0,10) !== input.date || (input.time && !/^(?:[01]\d|2[0-3]):[0-5]\d$/.test(input.time))) return res.status(400).json({ error: 'Provide a name, valid email, service, date and valid time.' });
+  const entry = Object.fromEntries(Object.keys(limits).map(key => [key, (input[key] || '').trim()]));
+  entry.id = 'b_' + randomUUID();
+  entry.createdAt = new Date().toISOString();
+  entry.status = 'pending';
+  if (req.headers.authorization) {
+    const [scheme, token] = req.headers.authorization.split(' ');
+    const payload = scheme === 'Bearer' && verifyToken(token);
+    if (!payload || !(data.users || []).some(u => u.id === payload.id)) return res.status(401).json({ error: 'Your session expired. Please log in again.' });
+    entry.userId = payload.id;
+  }
+  const requestKey = req.get('Idempotency-Key');
+  if (requestKey && !/^[a-zA-Z0-9-]{16,100}$/.test(requestKey)) return res.status(400).json({ error: 'Invalid request key' });
+  if (requestKey) {
+    const existing = (data.bookings || []).find(b => b.requestKey === requestKey);
+    if (existing) return res.json({ ok: true, reference: existing.id });
+    entry.requestKey = requestKey;
   }
   data.bookings = data.bookings || [];
   data.bookings.push(entry);
   saveData(data);
-  res.json({ ok: true, entry });
+  res.status(201).json({ ok: true, reference: entry.id });
 });
 
 // Return current user profile (protected)
@@ -198,25 +284,33 @@ app.get('/api/me', (req, res) => {
   if (!user) return res.status(404).json({ error: 'User not found' });
   // return basic profile and user's bookings
   const bookings = (data.bookings || []).filter(b => b.userId === user.id);
-  res.json({ id: user.id, name: user.name, email: user.email, phone: user.phone, emailConfirmed: !!user.emailConfirmed, bookings });
+  res.json({ id: user.id, name: user.name, email: user.email, phone: user.phone, emailConfirmed: !!user.emailConfirmed, isAdmin: isOwner(user), bookings });
 });
 
 // Update current user profile (protected)
-app.put('/api/me', async (req, res) => {
+app.put('/api/me', asyncRoute(async (req, res) => {
   const auth = (req.headers.authorization || '').split(' ');
   if (auth.length !== 2 || auth[0] !== 'Bearer') return res.status(401).json({ error: 'Unauthorized' });
   const payload = verifyToken(auth[1]);
   if (!payload || !payload.id) return res.status(401).json({ error: 'Unauthorized' });
-  const { name, phone, password } = req.body || {};
+  const { name, phone, password, currentPassword } = req.body || {};
+  const newHash = password && typeof password === 'string' && password.length >= 8 && Buffer.byteLength(password) <= 72 ? await bcrypt.hash(password, 10) : null;
   const data = loadData();
   const user = (data.users || []).find(u => u.id === payload.id);
   if (!user) return res.status(404).json({ error: 'User not found' });
+  if (password && (typeof password !== 'string' || password.length < 8 || Buffer.byteLength(password) > 72)) return res.status(400).json({ error: 'Password must be at least 8 characters and at most 72 bytes.' });
+  if ((name != null && (typeof name !== 'string' || name.length > 200)) || (phone != null && (typeof phone !== 'string' || phone.length > 50))) return res.status(400).json({ error: 'Invalid profile fields' });
   if (name) user.name = name;
   if (phone) user.phone = phone;
-  if (password) user.password = await bcrypt.hash(password, 10);
+  if ((payload.version || 0) !== (user.tokenVersion || 0)) return res.status(401).json({ error: 'Please log in again.' });
+  if (password) {
+    if (typeof currentPassword !== 'string' || !bcrypt.compareSync(currentPassword, user.password)) return res.status(400).json({ error: 'Enter your current password to change it.' });
+    user.password = newHash; user.tokenVersion = (user.tokenVersion || 0) + 1;
+  }
   saveData(data);
+  sessionResponse(res, user);
   res.json({ ok: true });
-});
+}));
 
 // Middleware: protect admin routes
 function adminAuth(req, res, next) {
@@ -224,12 +318,23 @@ function adminAuth(req, res, next) {
   const parts = auth.split(' ');
   if (parts.length !== 2 || parts[0] !== 'Bearer') return res.status(401).json({ error: 'Unauthorized' });
   const payload = verifyToken(parts[1]);
-  if (!payload || !payload.isAdmin) return res.status(403).json({ error: 'Forbidden' });
+  const user = payload && (loadData().users || []).find(u => u.id === payload.id);
+  if (!user || !user.emailConfirmed || !isOwner(user)) return res.status(403).json({ error: 'Forbidden' });
   req.user = payload;
   next();
 }
 
 // Protected admin endpoints
+app.get('/api/admin/summary', adminAuth, (req, res) => {
+  const data = loadData();
+  const bookings = data.bookings || [];
+  res.json({ total: bookings.length, pending: bookings.filter(b => b.status === 'pending').length, confirmed: bookings.filter(b => b.status === 'confirmed').length, clients: (data.users || []).length });
+});
+
+app.use('/api/admin', (req, res, next) => {
+  for (const value of Object.values(req.query)) if (typeof value !== 'string') return res.status(400).json({ error: 'Invalid filter' });
+  next();
+});
 app.get('/api/admin/signups', adminAuth, (req, res) => {
   const data = loadData();
   res.json(data.signups || []);
@@ -260,10 +365,11 @@ app.get('/api/admin/bookings', adminAuth, (req, res) => {
   }
   // sort by createdAt desc
   list = list.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
-  const p = Math.max(1, parseInt(page,10));
-  const l = Math.max(1, parseInt(limit,10));
-  const start = (p-1)*l;
-  const paged = list.slice(start, start + l);
+  const p = Number(page);
+  const l = Number(limit);
+  if (!Number.isInteger(p) || p < 1 || !Number.isInteger(l) || l < 1 || l > 100) return res.status(400).json({ error: 'Invalid page or limit. Limit must be between 1 and 100.' });
+  const offset = (p-1)*l;
+  const paged = list.slice(offset, offset + l);
   res.json({ total: list.length, page: p, limit: l, items: paged });
 });
 
@@ -279,6 +385,7 @@ app.post('/api/admin/bookings/bulk', adminAuth, (req, res) => {
     return res.json({ ok: true, deleted: before - data.bookings.length });
   }
   if (action === 'status') {
+    if (!['pending', 'confirmed', 'cancelled', 'completed'].includes(status)) return res.status(400).json({ error: 'Invalid booking status' });
     let updated = 0;
     (data.bookings || []).forEach(b => {
       if (ids.includes(b.id)) { b.status = status || b.status; updated++; }
@@ -314,7 +421,11 @@ app.get('/api/admin/export/bookings', adminAuth, (req, res) => {
   const keys = ['id','name','email','phone','service','date','time','status','message','createdAt'];
   const rows = [keys.join(',')];
   list.forEach(it => {
-    rows.push(keys.map(k => '"' + ((it[k] || '').toString().replace(/"/g,'""')) + '"').join(','));
+    rows.push(keys.map(k => {
+      let value = (it[k] || '').toString();
+      if (/^[\s]*[=+@-]/.test(value)) value = "'" + value;
+      return '"' + value.replace(/"/g, '""') + '"';
+    }).join(','));
   });
   const csv = rows.join('\n');
   res.setHeader('Content-Type', 'text/csv');
@@ -336,6 +447,7 @@ app.get('/api/admin/user/:id', adminAuth, (req, res) => {
 app.post('/api/admin/booking/:id/status', adminAuth, (req, res) => {
   const id = req.params.id;
   const { status } = req.body;
+  if (!['pending', 'confirmed', 'cancelled', 'completed'].includes(status)) return res.status(400).json({ error: 'Invalid booking status' });
   const data = loadData();
   const bookings = data.bookings || [];
   const b = bookings.find(x => x.id === id);
@@ -363,6 +475,14 @@ app.delete('/api/admin/signup/:id', adminAuth, (req, res) => {
   res.json({ ok: true });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server listening on http://localhost:${PORT}`);
+app.use((err, req, res, next) => {
+  console.error(err.message);
+  res.status(err.status === 413 ? 413 : err.status === 400 ? 400 : 500).json({ error: err.status === 400 ? 'Invalid request body.' : 'Unable to save or load your request. Please try again.' });
 });
+
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Server listening on http://localhost:${PORT}`);
+  });
+}
+module.exports = app;

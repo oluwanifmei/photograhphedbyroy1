@@ -1,50 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Admin — Photographed by Roy</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="forms.css">
-  
-</head>
-<body>
-  <main class="admin-page">
-    <div class="form-logo">
-      <a href="index.html">
-        <span class="brand-mark">R</span>
-      </a>
-    </div>
-    <h1>Admin Portal</h1>
-    <p>View signups and booking requests (stored locally in this demo).</p>
-    
-    <div class="admin-login-block">
-      <div class="form-group">
-        <label for="adminEmail">Admin Email</label>
-        <input id="adminEmail" placeholder="admin@example.com" />
-      </div>
-      <div class="form-group">
-        <label for="adminPassword">Admin Password</label>
-        <input id="adminPassword" type="password" placeholder="••••••••" />
-      </div>
-      <div class="form-actions">
-        <button id="adminLogin" class="button button-primary">Login as Admin</button>
-      </div>
-    </div>
-    
-    <section class="admin-section">
-      <h2>Registered Signups</h2>
-      <ul id="signupList"></ul>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Studio Dashboard | Photographed by Roy</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="forms.css"><link rel="stylesheet" href="refinements.css"></head>
+<body><main class="studio-dashboard">
+  <header class="studio-header"><a href="/" class="studio-brand">R. <span>ROY / STUDIO</span></a><div><a href="/" class="hero-text-link">View website ↗</a><button type="button" id="adminLogout" class="button button-secondary" hidden>Log out</button></div></header>
+  <p class="eyebrow">BEHIND THE LENS</p><h1>Your studio, at a glance.</h1><p class="studio-subtitle">Manage enquiries, keep plans moving, and make room for the next story.</p>
+  <p id="adminNotice" role="status" aria-live="polite"></p>
+  <form id="adminLoginForm" class="admin-login-block">
+    <h2>Owner sign in</h2><p>Use your verified owner account to access private client records.</p>
+    <div class="form-group"><label for="adminEmail">Email</label><input id="adminEmail" type="email" autocomplete="username" required></div>
+    <div class="form-group"><label for="adminPassword">Password</label><input id="adminPassword" type="password" autocomplete="current-password" required></div>
+    <button type="submit" class="button button-primary">Open dashboard →</button>
+  </form>
+  <div id="adminWorkspace" hidden>
+    <section class="studio-metrics" aria-label="Studio summary">
+      <article><span>ALL ENQUIRIES</span><strong id="metricTotal">—</strong></article><article><span>AWAITING REVIEW</span><strong id="metricPending">—</strong></article><article><span>CONFIRMED</span><strong id="metricConfirmed">—</strong></article><article><span>CLIENT ACCOUNTS</span><strong id="metricClients">—</strong></article>
     </section>
-    
-    <section class="admin-section">
-      <h2>Booking Requests</h2>
-      <ul id="bookingList"></ul>
+    <section class="studio-bookings" aria-labelledby="bookingsTitle"><div class="work-heading"><div><p class="eyebrow">THE NEXT CHAPTER</p><h2 id="bookingsTitle">Booking enquiries</h2></div><button type="button" id="exportBookings" class="button button-secondary">Export CSV ↗</button></div>
+      <form id="adminFilters" class="studio-filters"><div><label for="bookingSearch">Search clients or sessions</label><input id="bookingSearch" type="search" placeholder="Name, email, session or notes"></div><div><label for="bookingStatusFilter">Status</label><select id="bookingStatusFilter"><option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select></div><button class="button button-primary" type="submit">Apply filters</button><button class="button button-secondary" type="button" id="refreshBookings">Refresh</button></form>
+      <div class="studio-table-wrap"><table class="studio-table"><thead><tr><th scope="col">Client</th><th scope="col">Session</th><th scope="col">Requested date</th><th scope="col">Status</th><th scope="col">Update</th></tr></thead><tbody id="bookingRows"></tbody></table></div><p id="bookingEmpty" hidden>No enquiries match these filters.</p>
+      <div class="studio-pagination"><button type="button" id="previousBookings" class="button button-secondary">← Previous</button><span id="bookingPage" aria-live="polite"></span><button type="button" id="nextBookings" class="button button-secondary">Next →</button></div>
     </section>
-    
-    <p class="return-home"><a href="index.html">← Return to home</a></p>
-  </main>
-  <script src="config.js"></script>
-  <script src="admin.js"></script>
-</body>
-</html>
+    <details class="studio-clients"><summary>Registered clients</summary><ul id="signupList"></ul></details>
+  </div>
+</main><script src="config.js"></script><script src="auth.js"></script><script src="admin.js"></script></body></html>

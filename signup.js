@@ -1,4 +1,4 @@
-// Simple client-side signup handler (demo: stores signups in localStorage)
+// Register accounts with the server.
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('signupForm');
   form.addEventListener('submit', e => {
@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Try sending to backend API /api/register; fallback to localStorage if network fails
     fetch(`${API_BASE}/api/register`, {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name: entry.name, email: entry.email, phone: entry.phone, password: password })
     })
@@ -29,28 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.location.href = 'login.html';
       })
       .catch((err) => {
-        console.warn('Signup server error or offline:', err);
-        
-        if (err && err.error) {
-          alert(err.error);
-        } else {
-          // Offline fallback
-          const existing = JSON.parse(localStorage.getItem('signups') || '[]');
-          
-          // Check if already exists in offline storage
-          if (existing.some(s => s.email.toLowerCase() === entry.email.toLowerCase())) {
-            alert('Signup failed: An account with this email already exists locally.');
-            return;
-          }
-
-          existing.push(entry);
-          localStorage.setItem('signups', JSON.stringify(existing));
-          
-          // Auto-authenticate mock token for offline test flow
-          localStorage.setItem('token', 'mock_token_for_' + entry.email);
-          alert('Account created locally (Offline demo mode). Logging you in...');
-          window.location.href = 'booking.html';
-        }
+        alert(err && err.error ? err.error : 'Unable to reach the server. Please try again.');
       });
   });
 });

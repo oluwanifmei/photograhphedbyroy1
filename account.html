@@ -6,6 +6,8 @@
   <title>My Account — Photographed by Roy</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="forms.css">
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="stylesheet" href="refinements.css" />
 </head>
 <body>
   <main class="admin-page">
@@ -27,6 +29,8 @@
         <input id="profilePhone" placeholder="+234">
       </div>
       <div class="form-group">
+        <label for="currentPassword">Current password (required to change password)</label>
+        <input id="currentPassword" type="password" autocomplete="current-password">
         <label for="profilePassword">New Password</label>
         <input id="profilePassword" type="password" placeholder="Leave blank to keep current password">
       </div>
@@ -43,6 +47,7 @@
     <p class="return-home"><a href="index.html">← Return to home</a></p>
   </main>
   <script src="config.js"></script>
+  <script src="auth.js"></script>
   <script src="account.js"></script>
 </body>
 </html>

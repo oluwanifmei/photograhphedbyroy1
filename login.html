@@ -6,6 +6,8 @@
   <title>Login — Photographed by Roy</title>
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="forms.css">
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="stylesheet" href="refinements.css" />
 </head>
 <body>
   <main class="form-page">
@@ -20,21 +22,23 @@
     <form id="loginForm" class="booking-form">
       <div class="form-group">
         <label for="email">Email Address</label>
-        <input type="email" id="email" placeholder="you@example.com" required>
+        <input type="email" autocomplete="email" id="email" placeholder="you@example.com" required>
       </div>
       <div class="form-group">
         <label for="password">Password</label>
-        <input type="password" id="password" placeholder="••••••••" required>
+        <input type="password" autocomplete="current-password" id="password" placeholder="••••••••" required>
       </div>
       <div class="form-actions">
         <button type="submit" class="button button-primary">Login</button>
         <a class="button button-secondary" href="signup.html">Create Account</a>
       </div>
     </form>
+    <button type="button" id="resendVerification" class="button button-secondary">Resend verification email</button>
     
     <p class="return-home"><a href="index.html">← Return to home</a></p>
   </main>
   <script src="config.js"></script>
+  <script src="auth.js"></script>
   <script src="login.js"></script>
 </body>
 </html>

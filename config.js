@@ -14,7 +14,7 @@ const APP_CONFIG = {
   // Helper method to get the correct API Base URL
   get API_BASE() {
     // If a custom Render URL is specified, use it when running off file system
-    if (this.RENDER_BACKEND_URL && window.location.protocol === 'file:') {
+    if (this.RENDER_BACKEND_URL) {
       return this.RENDER_BACKEND_URL.replace(/\/$/, '');
     }
     // Default local dev check vs relative path when served over http/https
@@ -25,3 +25,5 @@ const APP_CONFIG = {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = APP_CONFIG;
 }
+
+if (typeof window !== "undefined") window.APP_CONFIG = APP_CONFIG;

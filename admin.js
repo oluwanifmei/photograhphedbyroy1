@@ -1,87 +1,66 @@
-// Admin demo: read signups and bookings from localStorage and render lists
 document.addEventListener('DOMContentLoaded', () => {
-  const signupList = document.getElementById('signupList');
-  const bookingList = document.getElementById('bookingList');
-  const loginBtn = document.getElementById('adminLogin');
-  const adminEmail = document.getElementById('adminEmail');
-  const adminPassword = document.getElementById('adminPassword');
-
-  const API_BASE = (window.APP_CONFIG && window.APP_CONFIG.API_BASE) || (window.location.protocol === 'file:' ? 'http://localhost:3000' : '');
-
-  if (loginBtn) {
-    loginBtn.addEventListener('click', () => {
-      const email = adminEmail.value.trim();
-      const password = adminPassword.value;
-      if (!email || !password) return alert('Email and password required');
-
-      fetch(`${API_BASE}/api/login`, { 
-        method: 'POST', 
-        headers: { 'Content-Type': 'application/json' }, 
-        body: JSON.stringify({ email, password }) 
-      })
-        .then(r => r.ok ? r.json() : r.json().then(err => Promise.reject(err)))
-        .then(data => {
-          localStorage.setItem('adminToken', data.token);
-          alert('Logged in as admin');
-          location.reload();
-        }).catch(err => {
-          console.warn('Admin login server error or offline:', err);
-          
-          if (err && err.error) {
-            alert(err.error);
-          } else {
-            // Offline Admin authentication fallback
-            if (email === 'admin@example.com' && password === 'admin') {
-              localStorage.setItem('adminToken', 'mock_admin_token');
-              alert('Logged in as Admin (Offline demo mode)');
-              location.reload();
-            } else {
-              alert('Login failed: Invalid credentials.');
-            }
-          }
-        });
+  const $ = id => document.getElementById(id);
+  const notice = (message, error = false) => { $('adminNotice').textContent = message; $('adminNotice').dataset.state = error ? 'error' : 'success'; };
+  let page = 1, total = 0, loading = false;
+  const limit = 20;
+  const query = () => new URLSearchParams({ search: $('bookingSearch').value.trim(), status: $('bookingStatusFilter').value });
+  const node = (tag, text, className) => { const el = document.createElement(tag); if (text != null) el.textContent = text; if (className) el.className = className; return el; };
+  function renderRows(items) {
+    $('bookingRows').replaceChildren(); $('bookingEmpty').hidden = items.length > 0;
+    items.forEach(booking => {
+      const row = node('tr');
+      const cell = (label, text) => { const el = node('td', text); el.dataset.label = label; row.appendChild(el); return el; };
+      const client = cell('Client'); client.appendChild(node('strong', booking.name || 'Unnamed client'));
+      const email = node('a', booking.email || ''); email.href = 'mailto:' + encodeURIComponent(booking.email || ''); client.appendChild(email);
+      if (booking.phone) client.appendChild(node('small', booking.phone));
+      const session = cell('Session', booking.service || 'Custom');
+      if (booking.message || booking.location) { const details = node('details'); details.appendChild(node('summary', 'View notes')); details.appendChild(node('p', [booking.location, booking.message].filter(Boolean).join(' · '))); session.appendChild(details); }
+      cell('Requested date', [booking.date, booking.time].filter(Boolean).join(' · '));
+      const status = cell('Status'); status.appendChild(node('span', booking.status || 'pending', 'status-badge status-' + (['pending','confirmed','completed','cancelled'].includes(booking.status) ? booking.status : 'pending')));
+      const action = cell('Update'); const select = node('select'); select.setAttribute('aria-label', 'Status for ' + (booking.name || 'client'));
+      ['pending','confirmed','completed','cancelled'].forEach(value => { const option = node('option', value); option.value = value; select.appendChild(option); }); select.value = booking.status || 'pending';
+      const save = node('button', 'Save', 'button button-secondary'); save.type = 'button';
+      save.addEventListener('click', async () => {
+        save.disabled = true; select.disabled = true;
+        try { await RoyAPI.request('/api/admin/booking/' + encodeURIComponent(booking.id) + '/status', { method: 'POST', body: JSON.stringify({ status: select.value }) }); await refresh(); notice('Booking status updated.'); }
+        catch (err) { notice(err.message, true); save.disabled = false; select.disabled = false; }
+      });
+      action.append(select, save); $('bookingRows').appendChild(row);
     });
   }
-
-  // Try fetching from backend, otherwise use localStorage fallback
-  const token = localStorage.getItem('adminToken');
-  if (token) {
-    // If it's a mock token, skip server request and fall back directly
-    if (token === 'mock_admin_token') {
-      loadOfflineData();
-    } else {
-      Promise.all([
-        fetch(`${API_BASE}/api/admin/signups`, { headers: { Authorization: 'Bearer ' + token } }).then(r => r.ok ? r.json() : Promise.reject()),
-        fetch(`${API_BASE}/api/admin/bookings`, { headers: { Authorization: 'Bearer ' + token } }).then(r => r.ok ? r.json() : Promise.reject())
-      ]).then(([signups, bookings]) => {
-        renderLists(signups, bookings);
-      }).catch(err => {
-        console.warn('Failed to fetch admin lists from server, using local fallback:', err);
-        loadOfflineData();
-      });
-    }
-  } else {
-    loadOfflineData();
+  async function refresh() {
+    if (loading) return;
+    loading = true; $('previousBookings').disabled = true; $('nextBookings').disabled = true;
+    try {
+      const params = query(); params.set('page', page); params.set('limit', limit);
+      const [summary, bookings] = await Promise.all([RoyAPI.request('/api/admin/summary'), RoyAPI.request('/api/admin/bookings?' + params)]);
+      total = bookings.total;
+      if (page > 1 && !bookings.items.length) { page--; loading = false; return refresh(); }
+      $('metricTotal').textContent = summary.total; $('metricPending').textContent = summary.pending; $('metricConfirmed').textContent = summary.confirmed; $('metricClients').textContent = summary.clients;
+      renderRows(bookings.items); $('bookingPage').textContent = total ? `Page ${page} of ${Math.ceil(total / limit)} · ${total} enquiries` : 'No enquiries yet';
+      $('adminWorkspace').hidden = false; $('adminLoginForm').hidden = true; $('adminLogout').hidden = false;
+      notice('');
+    } catch (err) {
+      notice(err.status === 401 ? 'Sign in to access your studio.' : err.status === 403 ? 'This account needs verified owner access. Sign in with the owner account.' : err.message, err.status !== 401);
+      if (err.status === 401 || err.status === 403) { $('adminWorkspace').hidden = true; $('adminLoginForm').hidden = false; }
+    } finally { loading = false; $('previousBookings').disabled = page <= 1; $('nextBookings').disabled = page * limit >= total; }
   }
-
-  function loadOfflineData() {
-    const signups = JSON.parse(localStorage.getItem('signups') || '[]');
-    const bookings = JSON.parse(localStorage.getItem('bookings') || '[]');
-    renderLists(signups, bookings);
-  }
-
-  function renderLists(signups, bookings) {
-    if (!signupList || !bookingList) return;
-    if (!signups || signups.length === 0) {
-      signupList.innerHTML = '<li>No signups yet.</li>';
-    } else {
-      signupList.innerHTML = signups.map(s => `<li><strong>${s.name}</strong> — ${s.email} — ${s.phone || '—'} <small>(${new Date(s.createdAt).toLocaleString()})</small></li>`).join('');
-    }
-
-    if (!bookings || bookings.length === 0) {
-      bookingList.innerHTML = '<li>No booking requests yet.</li>';
-    } else {
-      bookingList.innerHTML = bookings.map(b => `<li><strong>${b.name}</strong> — ${b.service} on ${b.date} ${b.time ? b.time : ''} — ${b.email} <small>(${b.status})</small></li>`).join('');
-    }
-  }
+  $('adminLoginForm').addEventListener('submit', async event => {
+    event.preventDefault(); const button = event.currentTarget.querySelector('button'); button.disabled = true;
+    try { await RoyAPI.request('/api/login', { method: 'POST', body: JSON.stringify({ email: $('adminEmail').value.trim(), password: $('adminPassword').value }) }); $('adminPassword').value = ''; await refresh(); }
+    catch (err) { notice(err.message, true); } finally { button.disabled = false; }
+  });
+  $('adminFilters').addEventListener('submit', event => { event.preventDefault(); page = 1; refresh(); });
+  $('refreshBookings').addEventListener('click', () => refresh());
+  $('previousBookings').addEventListener('click', () => { if (page > 1) { page--; refresh(); } });
+  $('nextBookings').addEventListener('click', () => { if (page * limit < total) { page++; refresh(); } });
+  $('adminLogout').addEventListener('click', async () => { try { await RoyAPI.request('/api/logout', { method: 'POST', body: '{}' }); location.reload(); } catch (err) { notice(err.message, true); } });
+  $('exportBookings').addEventListener('click', async () => {
+    try { const response = await fetch(APP_CONFIG.API_BASE + '/api/admin/export/bookings?' + query(), { credentials: 'include' }); if (!response.ok) throw new Error('Export failed. Please sign in and retry.'); const url = URL.createObjectURL(await response.blob()); const link = node('a'); link.href = url; link.download = 'roy-bookings.csv'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); } catch (err) { notice(err.message, true); }
+  });
+  document.querySelector('.studio-clients').addEventListener('toggle', async event => {
+    if (!event.target.open) return;
+    try { const clients = await RoyAPI.request('/api/admin/signups'); $('signupList').replaceChildren(...clients.map(client => node('li', `${client.name || 'Client'} · ${client.email || ''}${client.phone ? ' · ' + client.phone : ''}`))); if (!clients.length) $('signupList').appendChild(node('li', 'No registered clients yet.')); } catch (err) { notice(err.message, true); }
+  });
+  refresh();
 });

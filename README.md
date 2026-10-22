@@ -1,3 +1,12 @@
+For the corrected server, authentication, booking flows, and production storage settings, follow [TECHNICAL_SETUP.md](TECHNICAL_SETUP.md).
+
+The current website uses an editorial photo hero, responsive galleries, photo stories,
+client spotlights, guest booking, and a protected owner dashboard. Run it with the
+Express server (`npm install`, configure `.env`, then `npm start`) so direct page
+routes and the booking/account APIs work. Static hosting alone does not run the backend.
+The video-hero instructions below describe the earlier design and are retained as
+historical reference; a hero video is no longer required.
+
 # 🎬 PHOTOGRAPHED BY ROY - Cinematic Hero Edition
 
 A stunning, responsive photography portfolio website with a **cinematic video hero section**, dark/light theme switching, and professional animations.

@@ -1,39 +1,13 @@
-const siteLoader = document.getElementById('siteLoader');
-if (siteLoader) {
-  setTimeout(() => {
-    siteLoader.classList.add('is-hidden');
-    document.body.classList.remove('is-loading');
-  }, 10000);
-}
-
-// Page Navigation System
-const navLinks = document.querySelectorAll('[data-page]');
-const pages = document.querySelectorAll('.page');
-
-const navigateTo = (pageName) => {
-  pages.forEach(page => page.classList.remove('active'));
-  const targetPage = document.getElementById(`page-${pageName}`);
-  if (targetPage) {
-    targetPage.classList.add('active');
-    window.scrollTo(0, 0);
-  }
-};
-
-navLinks.forEach(link => {
-  link.addEventListener('click', (e) => {
-    e.preventDefault();
-    const pageName = link.getAttribute('data-page');
-    navigateTo(pageName);
-
-    // Close mobile menu
-    const siteNav = document.querySelector('.site-nav');
-    if (siteNav) {
-      siteNav.classList.remove('active');
-      navToggle?.setAttribute('aria-expanded', 'false');
-      navToggle?.setAttribute('aria-label', 'Open navigation menu');
-    }
-  });
+// Direct page routes work with or without JavaScript.
+document.addEventListener('DOMContentLoaded', () => {
+ const requested = location.hash.slice(1);
+ const initial = document.getElementById('page-' + requested) ? requested : document.body.dataset.initialPage || 'home';
+ document.querySelectorAll('.page').forEach(page => page.classList.toggle('active', page.id === 'page-' + initial));
+ document.querySelectorAll('.site-nav [data-page]').forEach(link => { if (link.dataset.page === initial) link.setAttribute('aria-current','page'); });
+ const selected = new URLSearchParams(location.search).get('package');
+ if (selected) document.getElementById('shootType').value = selected;
 });
+document.addEventListener('keydown', event => { if (event.key === 'Escape') { document.querySelector('.site-nav')?.classList.remove('active'); document.querySelector('.nav-toggle')?.setAttribute('aria-expanded','false'); } });
 
 // Parallax Scrolling Effect for Hero Image
 const heroImageSection = document.querySelector('.hero-image-section');
@@ -124,7 +98,7 @@ const fadeOutBookingBanner = () => {
   }
 };
 
-document.body.classList.add('is-loading');
+
 
 window.addEventListener('load', () => {
   if (bookingBanner) {
@@ -138,101 +112,337 @@ window.addEventListener('load', () => {
 
 // Gallery build from uploaded image files
 const galleryData = [
-  { src: 'My%20webproject/0ff61bc8-b908-48e2-9805-997ead6a3aa6.jpg', category: 'nature', title: 'Golden Nature Moment', alt: 'Nature photography with warm light' },
-  { src: 'My%20webproject/20df2db2-92d7-4fe5-ae27-695dbb760021.jpg', category: 'nature', title: 'Green Landscape', alt: 'Green nature scene' },
-  { src: 'My%20webproject/3b50f7e8-478f-4715-980e-fa87bde9d865.jpg', category: 'nature', title: 'Sunlit Outdoors', alt: 'Sunlit nature photo' },
-  { src: 'My%20webproject/612c3b16-c058-4afd-ad41-897eeace0c0f.JPG', category: 'portraits', title: 'Portrait Session', alt: 'Studio portrait photograph' },
-  { src: 'My%20webproject/93f6acf3-2871-4741-8d83-3a9926412819.jpg', category: 'portraits', title: 'Elegant Portrait', alt: 'Portrait photograph with soft lighting' },
-  { src: 'My%20webproject/A80205CA-D241-47B4-9E25-B251FCF7A930.jpg', category: 'portraits', title: 'Artistic Portrait', alt: 'Creative portrait photo' },
-  { src: 'My%20webproject/bda07e92-4a8e-4625-b959-8456758880d6.jpg', category: 'portraits', title: 'Fine Art Portrait', alt: 'Contemporary portrait photography' },
-  { src: 'My%20webproject/C91E4D5E-6317-4AA4-A488-52519999466A_0D74C73E-1919-4D69-A590-583913595ABC.jpg', category: 'portraits', title: 'Portrait Emotion', alt: 'Emotive portrait image' },
-  { src: 'My%20webproject/daf0821f-de15-413b-b5e6-5dc978b3852a.jpg', category: 'portraits', title: 'Styled Portrait', alt: 'Portrait with polished styling' },
-  { src: 'My%20webproject/e52f00a6-d8f1-4182-af9c-890aadd79474.JPG', category: 'fashion', title: 'Fashion Editorial', alt: 'Fashion photography editorial image' },
-  { src: 'My%20webproject/f498784a-3e3a-4d4b-896e-f04370e4db46.jpg', category: 'fashion', title: 'Runway Style', alt: 'Fashion shoot image' },
-  { src: 'My%20webproject/IMG_003816_0.jpg', category: 'fashion', title: 'Style Portrait', alt: 'Fashion portrait photo' },
-  { src: 'My%20webproject/IMG_0931.JPG', category: 'portraits', title: 'Editorial Portrait', alt: 'Portrait image with editorial styling' },
-  { src: 'My%20webproject/IMG_190502_0.jpg', category: 'street', title: 'City Moments', alt: 'Street photography with city lights' },
-  { src: 'My%20webproject/IMG_2160.jpg', category: 'weddings', title: 'Wedding Details', alt: 'Wedding ceremony detail photo' },
-  { src: 'My%20webproject/IMG_2170.JPG', category: 'weddings', title: 'Wedding Portrait', alt: 'Couple wedding portrait' },
-  { src: 'My%20webproject/IMG_2171.JPG', category: 'weddings', title: 'Wedding Celebration', alt: 'Wedding celebration photography' },
-  { src: 'My%20webproject/IMG_2330.jpg', category: 'weddings', title: 'Ceremony Moment', alt: 'Wedding ceremony photograph' },
-  { src: 'My%20webproject/IMG_2346.JPG', category: 'weddings', title: 'Wedding Details', alt: 'Close-up wedding detail photo' },
-  { src: 'My%20webproject/IMG_2389.jpg', category: 'weddings', title: 'Couple Portrait', alt: 'Wedding couple portrait' },
-  { src: 'My%20webproject/IMG_2768.jpg', category: 'events', title: 'Event Energy', alt: 'Live event photography' },
-  { src: 'My%20webproject/IMG_2770.jpg', category: 'events', title: 'Celebration Lights', alt: 'Event coverage shot' },
-  { src: 'My%20webproject/IMG_3130.JPG', category: 'events', title: 'Event Portrait', alt: 'Portrait at an event' },
-  { src: 'My%20webproject/IMG_3658.jpg', category: 'events', title: 'Party Mood', alt: 'Party photography' },
-  { src: 'My%20webproject/IMG_3664.JPG', category: 'events', title: 'Ceremony Moment', alt: 'Event photography ceremony image' },
-  { src: 'My%20webproject/IMG_3668.jpg', category: 'events', title: 'Live Music Event', alt: 'Music event photograph' },
-  { src: 'My%20webproject/IMG_3671.jpg', category: 'events', title: 'Crowd Scene', alt: 'Event crowd photo' },
-  { src: 'My%20webproject/IMG_3685.jpg', category: 'events', title: 'Stage View', alt: 'Stage event photograph' },
-  { src: 'My%20webproject/IMG_3746%281%29.jpg', category: 'birthday', title: 'Birthday Moments', alt: 'Birthday celebration photograph' },
-  { src: 'My%20webproject/IMG_3746.jpg', category: 'birthday', title: 'Cake Celebration', alt: 'Birthday cake and celebration photo' },
-  { src: 'My%20webproject/IMG_3769.JPG', category: 'birthday', title: 'Birthday Portrait', alt: 'Portrait at a birthday event' },
-  { src: 'My%20webproject/IMG_4588.JPG', category: 'street', title: 'Street Style', alt: 'Urban street fashion photo' },
-  { src: 'My%20webproject/IMG_4662.JPG', category: 'street', title: 'City Portrait', alt: 'Street portrait photography' },
-  { src: 'My%20webproject/IMG_4663.JPG', category: 'street', title: 'Night Street', alt: 'Night street photography' },
-  { src: 'My%20webproject/IMG_4665.JPG', category: 'street', title: 'Street Walk', alt: 'Street scene image' },
-  { src: 'My%20webproject/IMG_4670.JPG', category: 'street', title: 'Urban Detail', alt: 'Urban street detail photo' },
-  { src: 'IMG_8510.JPG.jpeg', category: 'portraits', title: 'Moody Portrait', alt: 'Portrait of a woman in a blue outfit outdoors' },
-  { src: 'My%20webproject/IMG_5150.JPG', category: 'portraits', title: 'Studio Portrait', alt: 'Studio portrait image' },
-  { src: 'My%20webproject/IMG_5152.JPG', category: 'portraits', title: 'Natural Portrait', alt: 'Portrait photo with natural light' },
-  { src: 'My%20webproject/IMG_5154.jpg', category: 'portraits', title: 'Portrait Story', alt: 'Portrait storytelling image' },
-  { src: 'My%20webproject/IMG_5179.JPG', category: 'portraits', title: 'Portrait Expression', alt: 'Portrait with expressive styling' },
-  { src: 'My%20webproject/IMG_5498.jpg', category: 'portraits', title: 'Lifestyle Portrait', alt: 'Lifestyle portrait photography' },
-  { src: 'My%20webproject/IMG_9124.jpg', category: 'fashion', title: 'Fashion Detail', alt: 'Fashion photography detail' },
-  { src: 'My%20webproject/IMG_9171.JPG', category: 'fashion', title: 'Editorial Fashion', alt: 'Editorial fashion photo' },
-  { src: 'My%20webproject/IMG_9396.JPG', category: 'fashion', title: 'Fashion Portrait', alt: 'Fashion portrait image' },
-  { src: 'My%20webproject/IMG_9423.JPG', category: 'fashion', title: 'Runway Portrait', alt: 'Runway-style fashion photograph' },
-  { src: 'My%20webproject/IMG_9428.JPG', category: 'fashion', title: 'Style Story', alt: 'Creative fashion photography' },
-  { src: 'My%20webproject/IMG_9596.jpg', category: 'portraits', title: 'Editorial Portrait', alt: 'Editorial style portrait' },
-  { src: 'My%20webproject/IMG_9665.jpg', category: 'portraits', title: 'Evening Portrait', alt: 'Portrait in evening light' },
-  { src: 'My%20webproject/temp_image_115334A8-3116-43C3-A723-34DEE48E4644.webp', category: 'nature', title: 'Nature Texture', alt: 'Nature texture photo' },
-  { src: 'My%20webproject/IMG_1094.jpg', category: 'events', title: 'Live Saxophone Performance', alt: 'Saxophonist performing under purple stage lights' },
-  { src: 'My%20webproject/IMG_1120.jpg', category: 'events', title: 'Stage Performance', alt: 'Musician performing on a concert stage' },
-  { src: 'My%20webproject/IMG_1130.jpg', category: 'events', title: 'Concert Lights', alt: 'Colorful lights above a live performance' },
-  { src: 'My%20webproject/IMG_4359.jpg', category: 'portraits', title: 'Studio Portrait', alt: 'Portrait of a woman seated in a studio' },
-  { src: 'My%20webproject/IMG_5513.jpg', category: 'portraits', title: 'Candid Portrait', alt: 'Casual portrait at home' },
+  {
+    "src": "IMG_8510.JPG.jpeg",
+    "category": "portraits",
+    "title": "Garden in blue",
+    "alt": "Woman in a light blue outfit standing in a green garden"
+  },
+  {
+    "src": "IMG_7125.JPG.jpeg",
+    "category": "fashion",
+    "title": "An everyday kind of confidence",
+    "alt": "Man in a dark shirt and burgundy trousers photographed outdoors"
+  },
+  {
+    "src": "IMG_7474.JPG.jpeg",
+    "category": "portraits",
+    "title": "In your own light",
+    "alt": "Woman wearing glasses seated beside a window"
+  },
+  {
+    "src": "DARA.jpeg",
+    "category": "portraits",
+    "title": "Sunshine in the city",
+    "alt": "Woman in glasses and a yellow blouse photographed outdoors"
+  },
+  {
+    "src": "My%20webproject/IMG_1094.jpg",
+    "category": "events",
+    "title": "In the spotlight",
+    "alt": "Saxophonist performing under purple concert lighting"
+  },
+  {
+    "src": "My%20webproject/joshb.JPG",
+    "category": "portraits",
+    "title": "Green room",
+    "alt": "Woman with orange hair seated beside a green hedge"
+  },
+  {
+    "src": "My%20webproject/bda07e92-4a8e-4625-b959-8456758880d6.jpg",
+    "category": "fashion",
+    "title": "In good company",
+    "alt": "Two people in coordinated black and white outfits on outdoor steps"
+  },
+  {
+    "src": "My%20webproject/IMG_5498.jpg",
+    "category": "portraits",
+    "title": "A softer shade",
+    "alt": "Woman in a blue dress against a dark blue studio background"
+  },
+  {
+    "src": "My%20webproject/IMG_4662.JPG",
+    "category": "street",
+    "title": "City pace",
+    "alt": "Man in a dark outfit photographed on a busy city street"
+  },
+  {
+    "src": "ABOUT%20ROY.jpeg",
+    "category": "portraits",
+    "title": "Through the trees",
+    "alt": "Portrait of Roy in a white shirt beneath trees"
+  },
+  {
+    "src": "IMG_7127.JPG.jpeg",
+    "category": "fashion",
+    "title": "The finishing touch",
+    "alt": "Man adjusting his collar during an outdoor fashion portrait"
+  },
+  {
+    "src": "IMG_9571.JPG.jpeg",
+    "category": "fashion",
+    "title": "Quiet confidence",
+    "alt": "Black and white full-length portrait of a man in a suit"
+  },
+  {
+    "src": "My%20webproject/0ff61bc8-b908-48e2-9805-997ead6a3aa6.jpg",
+    "category": "portraits",
+    "title": "Off the court",
+    "alt": "Young man in a check shirt photographed on a basketball court"
+  },
+  {
+    "src": "My%20webproject/20df2db2-92d7-4fe5-ae27-695dbb760021.jpg",
+    "category": "portraits",
+    "title": "Everyday stories",
+    "alt": "Smiling woman in glasses holding a packaged product"
+  },
+  {
+    "src": "My%20webproject/93f6acf3-2871-4741-8d83-3a9926412819.jpg",
+    "category": "details",
+    "title": "Tools of the trade",
+    "alt": "Close-up photograph of a Canon camera and lens"
+  },
+  {
+    "src": "My%20webproject/A80205CA-D241-47B4-9E25-B251FCF7A930.jpg",
+    "category": "portraits",
+    "title": "A quiet moment",
+    "alt": "Black and white portrait of a man looking down"
+  },
+  {
+    "src": "My%20webproject/C91E4D5E-6317-4AA4-A488-52519999466A_0D74C73E-1919-4D69-A590-583913595ABC.jpg",
+    "category": "portraits",
+    "title": "Warm tones",
+    "alt": "Closer portrait of a woman wearing glasses and a yellow blouse"
+  },
+  {
+    "src": "My%20webproject/daf0821f-de15-413b-b5e6-5dc978b3852a.jpg",
+    "category": "portraits",
+    "title": "Between the lines",
+    "alt": "Young man in a check shirt standing on an outdoor court"
+  },
+  {
+    "src": "My%20webproject/e52f00a6-d8f1-4182-af9c-890aadd79474.JPG",
+    "category": "fashion",
+    "title": "On the steps",
+    "alt": "Two people in black and white outfits posing beside brick steps"
+  },
+  {
+    "src": "My%20webproject/IMG_003816_0.jpg",
+    "category": "portraits",
+    "title": "A study in pink",
+    "alt": "Woman in a pink outfit against a purple studio background"
+  },
+  {
+    "src": "My%20webproject/IMG_0931.JPG",
+    "category": "portraits",
+    "title": "Stillness",
+    "alt": "Black and white seated portrait of a young man"
+  },
+  {
+    "src": "My%20webproject/IMG_1120.jpg",
+    "category": "events",
+    "title": "Live on stage",
+    "alt": "Musician holding a saxophone on a concert stage"
+  },
+  {
+    "src": "My%20webproject/IMG_1130.jpg",
+    "category": "events",
+    "title": "After dark",
+    "alt": "Live performance under purple stage lights"
+  },
+  {
+    "src": "My%20webproject/IMG_190502_0.jpg",
+    "category": "portraits",
+    "title": "Poise in pink",
+    "alt": "Studio portrait of a woman in pink with her hands folded"
+  },
+  {
+    "src": "My%20webproject/IMG_2160.jpg",
+    "category": "portraits",
+    "title": "Afternoon light",
+    "alt": "Woman in a patterned green dress photographed outdoors"
+  },
+  {
+    "src": "My%20webproject/IMG_2170.JPG",
+    "category": "portraits",
+    "title": "Looking ahead",
+    "alt": "Woman in a patterned green dress standing beside a building"
+  },
+  {
+    "src": "My%20webproject/IMG_2171.JPG",
+    "category": "portraits",
+    "title": "A moment to pause",
+    "alt": "Woman in a patterned green dress seated on a veranda"
+  },
+  {
+    "src": "My%20webproject/IMG_2330.jpg",
+    "category": "portraits",
+    "title": "Soft light",
+    "alt": "Outdoor portrait of a woman in a white off-shoulder blouse"
+  },
+  {
+    "src": "My%20webproject/IMG_2346.JPG",
+    "category": "portraits",
+    "title": "A new chapter",
+    "alt": "Studio portrait of a boy in a school uniform"
+  },
+  {
+    "src": "My%20webproject/IMG_2389.jpg",
+    "category": "details",
+    "title": "Small victories",
+    "alt": "Close-up photograph of a hand holding a trophy"
+  },
+  {
+    "src": "My%20webproject/IMG_2768.jpg",
+    "category": "details",
+    "title": "Behind the frame",
+    "alt": "Camera operator filming outdoors with a handheld stabiliser"
+  },
+  {
+    "src": "My%20webproject/IMG_3130.JPG",
+    "category": "fashion",
+    "title": "Suited",
+    "alt": "Full-length studio portrait of a man in a navy suit and hat"
+  },
+  {
+    "src": "My%20webproject/IMG_3658.jpg",
+    "category": "portraits",
+    "title": "Seeing red",
+    "alt": "Woman in red seated on a chair outdoors"
+  },
+  {
+    "src": "My%20webproject/IMG_3664.JPG",
+    "category": "portraits",
+    "title": "Under the palms",
+    "alt": "Woman in a black top and purple skirt standing outdoors"
+  },
+  {
+    "src": "My%20webproject/IMG_3668.jpg",
+    "category": "fashion",
+    "title": "In the green",
+    "alt": "Woman in a black top and patterned trousers seated on grass with a bag"
+  },
+  {
+    "src": "My%20webproject/IMG_3671.jpg",
+    "category": "fashion",
+    "title": "A closer look",
+    "alt": "Fashion portrait of a woman in black and patterned trousers seated outdoors"
+  },
+  {
+    "src": "My%20webproject/IMG_3685.jpg",
+    "category": "portraits",
+    "title": "Room to breathe",
+    "alt": "Full-length outdoor portrait of a woman in a black top and purple skirt"
+  },
+  {
+    "src": "My%20webproject/IMG_3746(1).jpg",
+    "category": "portraits",
+    "title": "Among the green",
+    "alt": "Woman in a green dress seated on a lawn"
+  },
+  {
+    "src": "My%20webproject/IMG_3769.JPG",
+    "category": "fashion",
+    "title": "In motion",
+    "alt": "Full-length fashion portrait of a woman carrying a patterned bag"
+  },
+  {
+    "src": "My%20webproject/IMG_4359.jpg",
+    "category": "portraits",
+    "title": "At ease",
+    "alt": "Casual indoor portrait of a young man wearing sunglasses"
+  },
+  {
+    "src": "My%20webproject/IMG_4588.JPG",
+    "category": "portraits",
+    "title": "Window light",
+    "alt": "Black and white portrait of a young man in glasses beside a window"
+  },
+  {
+    "src": "My%20webproject/IMG_4663.JPG",
+    "category": "street",
+    "title": "A little company",
+    "alt": "Man carrying a teddy bear beside a busy city road"
+  },
+  {
+    "src": "My%20webproject/IMG_4665.JPG",
+    "category": "street",
+    "title": "Across the city",
+    "alt": "Man in a dark outfit standing at a city crossing"
+  },
+  {
+    "src": "My%20webproject/IMG_4670.JPG",
+    "category": "street",
+    "title": "Waiting here",
+    "alt": "Man in glasses holding a teddy bear beside a roadside sign"
+  },
+  {
+    "src": "My%20webproject/IMG_5150.JPG",
+    "category": "street",
+    "title": "Looking up",
+    "alt": "Man in a cap looking at a phone outdoors"
+  },
+  {
+    "src": "My%20webproject/IMG_5152.JPG",
+    "category": "street",
+    "title": "Working light",
+    "alt": "Man wearing a reflective vest beside a construction site"
+  },
+  {
+    "src": "My%20webproject/IMG_5154.jpg",
+    "category": "street",
+    "title": "Between places",
+    "alt": "Full-length portrait of a man in a reflective vest outdoors"
+  },
+  {
+    "src": "My%20webproject/IMG_5179.JPG",
+    "category": "street",
+    "title": "A new angle",
+    "alt": "Man leaning back with a phone in an outdoor street scene"
+  },
+  {
+    "src": "My%20webproject/IMG_5513(1).jpg",
+    "category": "portraits",
+    "title": "A seat in the sun",
+    "alt": "Woman in glasses and a peach outfit seated on a wicker chair"
+  },
+  {
+    "src": "My%20webproject/IMG_9124.jpg",
+    "category": "fashion",
+    "title": "A quiet silhouette",
+    "alt": "Black and white full-length portrait of a woman in a flowing white dress"
+  },
+  {
+    "src": "My%20webproject/IMG_9171.JPG",
+    "category": "portraits",
+    "title": "In black and white",
+    "alt": "Black and white close-up portrait of a woman with braids"
+  },
+  {
+    "src": "My%20webproject/IMG_9396.JPG",
+    "category": "fashion",
+    "title": "After hours",
+    "alt": "Man wearing sunglasses and a pale shirt seated in a dark interior"
+  },
+  {
+    "src": "My%20webproject/IMG_9423.JPG",
+    "category": "portraits",
+    "title": "By the doorway",
+    "alt": "Man in a light blue shirt and jeans leaning beside a doorway"
+  },
+  {
+    "src": "My%20webproject/IMG_9596.jpg",
+    "category": "portraits",
+    "title": "A little celebration",
+    "alt": "Young girl in a red dress standing beside a white car"
+  },
+  {
+    "src": "My%20webproject/IMG_9665.jpg",
+    "category": "portraits",
+    "title": "Red against white",
+    "alt": "Young girl in a red dress posing with outstretched arms beside a white car"
+  }
 ];
-
-const galleryGrid = document.getElementById('galleryGrid');
-const buildGalleryGrid = () => {
-  if (!galleryGrid) return;
-  galleryGrid.innerHTML = galleryData.map(image => `
-    <article class="gallery-item" data-category="${image.category}">
-      <img src="${image.src}" alt="${image.alt}" loading="lazy" />
-      <div class="gallery-overlay">
-        <p>${image.title}</p>
-      </div>
-    </article>
-  `).join('');
-};
-
-buildGalleryGrid();
-
-// Gallery Filter
-const filterBtns = document.querySelectorAll('.filter-btn');
-const galleryItems = () => document.querySelectorAll('.gallery-item');
-
-if (filterBtns.length) {
-  filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      filterBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      const filter = btn.getAttribute('data-filter');
-      galleryItems().forEach(item => {
-        if (filter === 'all' || item.getAttribute('data-category') === filter) {
-          item.style.display = 'block';
-          setTimeout(() => item.style.opacity = '1', 0);
-        } else {
-          item.style.opacity = '0';
-          setTimeout(() => item.style.display = 'none', 300);
-        }
-      });
-    });
-  });
-}
 
 // Before & After Slider
 const beforeAfterRange = document.getElementById('beforeAfterRange');
@@ -245,41 +455,6 @@ if (beforeAfterRange && beforeAfterSlider) {
 
   beforeAfterRange.addEventListener('input', updateClip);
   updateClip();
-}
-
-// Booking Form
-const bookingForm = document.getElementById('bookingForm');
-if (bookingForm) {
-  bookingForm.addEventListener('submit', function (e) {
-    e.preventDefault();
-
-    const name = document.getElementById('clientName').value;
-    const email = document.getElementById('clientEmail').value;
-    const phone = document.getElementById('clientPhone').value;
-    const shootType = document.getElementById('shootType').value;
-    const shootDate = document.getElementById('shootDate').value;
-    const shootTime = document.getElementById('shootTime').value;
-    const shootLocation = document.getElementById('shootLocation').value;
-    const message = document.getElementById('shootMessage').value;
-
-    const whatsappMessage = `Hello! I'd like to book a shoot.
-Name: ${name}
-Email: ${email}
-Phone: ${phone}
-Type: ${shootType}
-Date: ${shootDate}
-Time: ${shootTime}
-Location: ${shootLocation}
-Details: ${message}`;
-
-    const whatsappNumber = '2349025803917';
-    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
-
-    alert('Thank you for your booking request! You will be redirected to WhatsApp to confirm your details.');
-    window.open(whatsappUrl, '_blank');
-
-    bookingForm.reset();
-  });
 }
 
 // Contact Form
@@ -300,74 +475,18 @@ if (contactForm) {
   });
 }
 
-// Intro Overlay
-(function introOverlay() {
-  const overlay = document.getElementById('introOverlay');
-  const closeBtn = document.getElementById('introClose');
-  const dontShow = document.getElementById('dontShowIntro');
-  const INTRO_KEY = 'introSeen_v1';
-
-  const showOverlay = () => {
-    if (!overlay) return;
-    overlay.setAttribute('aria-hidden', 'false');
-    document.documentElement.style.overflow = 'hidden';
-  };
-
-  const hideOverlay = () => {
-    if (!overlay) return;
-    overlay.setAttribute('aria-hidden', 'true');
-    document.documentElement.style.overflow = '';
-  };
-
-  const seen = localStorage.getItem(INTRO_KEY);
-  if (!seen) {
-    window.setTimeout(showOverlay, 300);
-    window.setTimeout(() => {
-      if (overlay && overlay.getAttribute('aria-hidden') === 'false') {
-        hideOverlay();
-      }
-    }, 1800);
-  }
-
-  if (closeBtn) {
-    closeBtn.addEventListener('click', () => {
-      if (dontShow && dontShow.checked) {
-        localStorage.setItem(INTRO_KEY, 'true');
-      }
-      hideOverlay();
-    });
-  }
-
-  if (overlay) {
-    overlay.addEventListener('click', (e) => {
-      if (e.target === overlay) {
-        if (dontShow && dontShow.checked) {
-          localStorage.setItem(INTRO_KEY, 'true');
-        }
-        hideOverlay();
-      }
-    });
-  }
-})();
-
 // Image Error Handling
 const allImages = document.querySelectorAll('img');
 allImages.forEach(img => {
   img.addEventListener('error', () => {
-    img.src = 'images/placeholder.svg';
+    if (!img.dataset.failed) { img.dataset.failed = 'true'; img.removeAttribute('srcset'); img.src = 'images/placeholder.svg'; }
   });
 });
 
 // Initialize Theme
 initializeTheme();
 
-// Set Home as default page on load
-window.addEventListener('load', () => {
-  const currentPage = document.querySelector('.page.active');
-  if (!currentPage) {
-    navigateTo('home');
-  }
-});
+
 
 const faqItems = document.querySelectorAll('.faq-item');
 if (faqItems.length) {
@@ -475,7 +594,10 @@ function saveMessage(userMessage, botReply) {
 function displayMessage(content, type) {
   const messageDiv = document.createElement('div');
   messageDiv.className = `chat-message ${type}`;
-  messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
+  const text = document.createElement('div');
+  text.className = 'message-content';
+  text.textContent = content;
+  messageDiv.appendChild(text);
   chatData.messages.appendChild(messageDiv);
   chatData.messages.scrollTop = chatData.messages.scrollHeight;
 }
@@ -580,11 +702,12 @@ function loadAdminMessages() {
       const msgDiv = document.createElement('div');
       msgDiv.className = 'admin-message';
       const date = new Date(msg.timestamp).toLocaleString();
-      msgDiv.innerHTML = `
-        <div class="admin-message-time">${date}</div>
-        <div class="admin-message-user">📨 Customer: ${msg.user}</div>
-        <div class="admin-message-text"><strong>Response:</strong> ${msg.bot}</div>
-      `;
+      for (const [className, text] of [['admin-message-time', date], ['admin-message-user', `📨 Customer: ${msg.user}`], ['admin-message-text', `Response: ${msg.bot}`]]) {
+        const line = document.createElement('div');
+        line.className = className;
+        line.textContent = text;
+        msgDiv.appendChild(line);
+      }
       adminData.messagesList.appendChild(msgDiv);
     });
   });
@@ -684,75 +807,15 @@ document.addEventListener('click', (e) => {
 });
 
 // Render dropdown items based on auth state
-const updateAccountDropdown = () => {
+const updateAccountDropdown = async () => {
   if (!accountMenu) return;
-
-  const token = localStorage.getItem('token');
-  const adminToken = localStorage.getItem('adminToken');
-  let menuHtml = '';
-
-  if (token) {
-    // Logged in user
-    menuHtml += `
-      <div class="account-menu-header">Logged In</div>
-      <div class="account-menu-divider"></div>
-      <a href="account.html" class="account-menu-item">Dashboard</a>
-    `;
-
-    // Admin link if admin token also exists
-    if (adminToken) {
-      menuHtml += `<a href="admin.html" class="account-menu-item">Admin Panel</a>`;
-    }
-
-    menuHtml += `
-      <div class="account-menu-divider"></div>
-      <button class="account-menu-item" id="logoutBtn">Log Out</button>
-    `;
-  } else if (adminToken) {
-    // Only Admin is logged in
-    menuHtml += `
-      <div class="account-menu-header">Admin Access</div>
-      <div class="account-menu-divider"></div>
-      <a href="admin.html" class="account-menu-item">Admin Panel</a>
-      <div class="account-menu-divider"></div>
-      <button class="account-menu-item" id="logoutAdminBtn">Log Out Admin</button>
-    `;
-  } else {
-    // Guest
-    menuHtml += `
-      <div class="account-menu-header">Guest</div>
-      <div class="account-menu-divider"></div>
-      <a href="login.html" class="account-menu-item">Login</a>
-      <a href="signup.html" class="account-menu-item">Sign Up</a>
-    `;
-  }
-
-  accountMenu.innerHTML = menuHtml;
-
-  // Add event listeners for dynamic buttons
-  const logoutBtn = document.getElementById('logoutBtn');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      localStorage.removeItem('token');
-      localStorage.removeItem('adminToken');
-      alert('Logged out successfully');
-      location.reload();
-    });
-  }
-
-  const logoutAdminBtn = document.getElementById('logoutAdminBtn');
-  if (logoutAdminBtn) {
-    logoutAdminBtn.addEventListener('click', () => {
-      localStorage.removeItem('adminToken');
-      alert('Admin logged out');
-      location.reload();
-    });
-  }
+  let user = null;
+  try { user = await RoyAPI.request('/api/me'); } catch {}
+  accountMenu.innerHTML = user
+    ? '<a href="account.html" class="account-menu-item">My account</a>' + (user.isAdmin ? '<a href="admin.html" class="account-menu-item">Admin panel</a>' : '') + '<button class="account-menu-item" id="logoutBtn">Log out</button>'
+    : '<a href="login.html" class="account-menu-item">Log in</a><a href="signup.html" class="account-menu-item">Create account</a>';
+  document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+    try { await RoyAPI.request('/api/logout', { method: 'POST', body: '{}' }); location.reload(); } catch (err) { alert(err.message); }
+  });
 };
-
-// Run on load
 document.addEventListener('DOMContentLoaded', updateAccountDropdown);
-if (document.readyState === 'interactive' || document.readyState === 'complete') {
-  updateAccountDropdown();
-}
-

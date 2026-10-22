@@ -1,0 +1,41 @@
+{
+  "behindTheScenesVideo": null,
+  "stories": [
+    {
+      "id": "colour-of-confidence",
+      "number": "01",
+      "category": "A portrait study",
+      "title": "The colour of confidence.",
+      "intro": "Warm yellow. Cool blue. A smile that makes the frame its own.",
+      "note": "This portrait study follows the conversation between colour and expression. The wider frame gives the pose room to breathe; the closer portrait draws attention to a smile, a gesture, and the light on the face.",
+      "cover": "DARA.jpeg",
+      "photos": ["DARA.jpeg", "My%20webproject/C91E4D5E-6317-4AA4-A488-52519999466A_0D74C73E-1919-4D69-A590-583913595ABC.jpg"],
+      "package": "portrait",
+      "tags": ["Colour", "Expression", "Portraits"]
+    },
+    {
+      "id": "city-in-motion",
+      "number": "02",
+      "category": "Notes from the street",
+      "title": "The city doesn't pose.",
+      "intro": "A crossing, a passing car, a quiet pause. The everyday becomes the story.",
+      "note": "Road markings, passing traffic and everyday objects become part of the composition. These photographs move between a wider street scene and a more personal portrait, holding onto the character of the surroundings.",
+      "cover": "My%20webproject/IMG_4662.JPG",
+      "photos": ["My%20webproject/IMG_4662.JPG", "My%20webproject/IMG_4663.JPG", "My%20webproject/IMG_4665.JPG", "My%20webproject/IMG_4670.JPG"],
+      "package": "custom",
+      "tags": ["Street", "Movement", "Everyday life"]
+    },
+    {
+      "id": "after-the-lights",
+      "number": "03",
+      "category": "Live, in colour",
+      "title": "After the lights come on.",
+      "intro": "Purple washes. Blue light. A saxophone held between the music and the moment.",
+      "note": "Live performance brings its own palette. Purple and blue stage light shape these frames, while the instruments, gestures and space around the performers tell the rest of the story.",
+      "cover": "My%20webproject/IMG_1094.jpg",
+      "photos": ["My%20webproject/IMG_1094.jpg", "My%20webproject/IMG_1120.jpg", "My%20webproject/IMG_1130.jpg"],
+      "package": "event",
+      "tags": ["Live performance", "Stage light", "Events"]
+    }
+  ]
+}
