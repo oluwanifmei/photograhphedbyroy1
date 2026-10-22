@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const path = require('node:path');
 
-function page(home = false, inline = false, staticHosting = false, backendURL = '') {
+function page(home = false, inline = false, staticHosting = false, backendURL = '', paymentEnabled = false) {
   let submit;
   let resets = 0;
   const button = { disabled: false };
@@ -14,15 +14,33 @@ function page(home = false, inline = false, staticHosting = false, backendURL = 
   const status = { hidden: true, textContent: '', dataset: {}, focus() {} };
   const calls = [];
   const drafts = [];
+  const paymentElements = Object.fromEntries(['bookingPayment', 'bookingPaymentPackage', 'bookingPaymentAmount', 'bookingPaymentReference'].map(id => [id, { hidden: true, textContent: '' }]));
+  if (paymentEnabled) values.shootType = 'portrait';
   let response = async () => ({ ok: true, json: async () => ({ ok: true }) });
   const context = { window: { APP_CONFIG: { API_BASE: 'https://api.example.com' } }, document: { addEventListener: (_, fn) => fn(), querySelectorAll: () => [], getElementById: id => id === 'bookingForm' ? form : id === 'bookingStatus' && inline ? status : (id in values ? { value: values[id] } : null) }, localStorage: { getItem: () => null, setItem: () => assert.fail('Must not store a failed booking locally') }, alert: message => alerts.push(message), fetch: async (url, options) => { calls.push({ url, options }); return response(); }, AbortController, setTimeout, clearTimeout, crypto: { randomUUID: () => 'test-request-key-123456' }, TypeError };
   context.window.APP_CONFIG.STATIC_HOSTING = staticHosting;
   context.window.APP_CONFIG.RENDER_BACKEND_URL = backendURL;
   context.window.APP_CONFIG.WHATSAPP_NUMBER = '2349025803917';
   context.window.open = url => drafts.push(url);
+  const getElement = context.document.getElementById;
+  context.document.getElementById = id => paymentEnabled && paymentElements[id] ? paymentElements[id] : getElement(id);
   vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../booking.js'), 'utf8'), context);
-  return { submit: (whatsapp = false) => submit({ preventDefault() {}, submitter: { value: whatsapp ? 'whatsapp' : '' } }), alerts, calls, drafts, button, status, get resets() { return resets; }, respond: fn => response = fn };
+  return { submit: (whatsapp = false) => submit({ preventDefault() {}, submitter: { value: whatsapp ? 'whatsapp' : '' } }), paymentElements, alerts, calls, drafts, button, status, get resets() { return resets; }, respond: fn => response = fn };
 }
+
+test('payment instructions appear only after saved receipt and retain selected package after reset', async () => {
+  const p = page(true, true, false, '', true);
+  p.respond(async () => ({ ok: false, json: async () => ({ error: 'Unavailable' }) }));
+  await p.submit();
+  assert.equal(p.paymentElements.bookingPayment.hidden, true);
+  p.respond(async () => ({ ok: true, json: async () => ({ ok: true, reference: 'b_12345678' }) }));
+  await p.submit();
+  assert.equal(p.paymentElements.bookingPayment.hidden, false);
+  assert.match(p.paymentElements.bookingPaymentPackage.textContent, /Portrait Session/);
+  assert.match(p.paymentElements.bookingPaymentAmount.textContent, /₦50,000/);
+  assert.match(p.paymentElements.bookingPaymentReference.textContent, /12345678/);
+  assert.equal(p.resets, 1);
+});
 
 test('optional WhatsApp action opens a complete draft and still saves the enquiry once', async () => {
   const p = page(true, true, true, 'https://api.example.com');

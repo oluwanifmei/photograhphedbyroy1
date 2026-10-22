@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('bookingForm');
   if (form) {
     const status = document.getElementById('bookingStatus');
+    const payment = document.getElementById('bookingPayment');
     const notify = (message, kind) => { if (!status) return alert(message); status.hidden = false; status.textContent = message; status.dataset.state = kind; status.focus(); };
     let submitting = false;
     let previousBody = '';
@@ -17,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', async e => {
       e.preventDefault();
       if (submitting || !form.reportValidity()) return;
+      if (payment) payment.hidden = true;
       const value = (...ids) => { const element = ids.map(id => document.getElementById(id)).find(Boolean); return element ? element.value.trim() : ''; };
       const entry = { name: value('name','clientName'), email: value('email','clientEmail'), phone: value('phone','clientPhone'), service: value('service','shootType'), date: value('date','shootDate'), time: value('time','shootTime'), message: value('message','shootMessage'), location: value('shootLocation'), priority: value('shootPriority') };
       const whatsappRequested = e.submitter?.value === 'whatsapp';
@@ -48,6 +50,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const result = await response.json();
         if (!response.ok || !result.ok) throw new Error(result.error || 'Unable to submit your booking.');
         notify('Request received' + (result.reference ? ' · Reference ' + result.reference.slice(-8).toUpperCase() : '') + '. Roy will review your details and contact you by email to confirm availability. Your session is not booked yet.', 'success');
+        if (payment) {
+          const packages = { portrait: ['Portrait Session', '₦50,000'], wedding: ['Wedding Photography', 'From ₦150,000 · final quote confirmed by Roy'], event: ['Event Coverage', '₦100,000'], fashion: ['Fashion Shoot', '₦30,000'], birthday: ['Birthday & Celebration', '₦20,000'], graduation: ['Graduation Session', '₦30,000'], custom: ['Custom session', 'Roy will confirm your quote before payment'] };
+          const [packageName, price] = packages[entry.service] || [entry.service, 'Roy will confirm your quote before payment'];
+          document.getElementById('bookingPaymentPackage').textContent = 'Selected package: ' + packageName;
+          document.getElementById('bookingPaymentAmount').textContent = 'Package price: ' + price;
+          document.getElementById('bookingPaymentReference').textContent = result.reference ? 'Booking reference: ' + result.reference.slice(-8).toUpperCase() : 'Use your name as your transfer reference.';
+          payment.hidden = false;
+        }
         form.reset();
         previousBody = '';
       } catch (err) {

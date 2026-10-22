@@ -25,7 +25,11 @@ document.addEventListener('DOMContentLoaded', () => {
         try { await RoyAPI.request('/api/admin/booking/' + encodeURIComponent(booking.id) + '/status', { method: 'POST', body: JSON.stringify({ status: select.value }) }); await refresh(); notice('Booking status updated.'); }
         catch (err) { notice(err.message, true); save.disabled = false; select.disabled = false; }
       });
-      action.append(select, save); $('bookingRows').appendChild(row);
+      const reply = node('a', 'Email client ↗', 'button button-secondary');
+      const feedback = ['Hi ' + (booking.name || 'there') + ',', '', 'Thank you for choosing Photographed by Roy.', 'Your booking status: ' + (booking.status || 'pending') + '.', 'Session: ' + (booking.service || 'Custom') + '.', 'Requested date: ' + [booking.date, booking.time].filter(Boolean).join(' ') + '.', 'Reference: ' + (booking.id || '').slice(-8).toUpperCase() + '.', '', booking.status === 'confirmed' ? 'Your appointment is confirmed. Please transfer the amount agreed with Roy to:\nBank: OPay\nAccount number: 9025803917\nAccount name: AYOOLA OLUWANIFEMI\nPlease include your name and reference, and reply with your payment receipt.' : 'I will be in touch about the next steps for your session.', '', 'Roy\nPhotographed by Roy'].join('\n');
+      reply.href = 'mailto:' + encodeURIComponent(booking.email || '') + '?subject=' + encodeURIComponent('Your photography booking · ' + (booking.id || '').slice(-8).toUpperCase()) + '&body=' + encodeURIComponent(feedback);
+      reply.setAttribute('aria-label', 'Email booking update to ' + (booking.name || 'client'));
+      action.append(select, save, reply); $('bookingRows').appendChild(row);
     });
   }
   async function refresh() {

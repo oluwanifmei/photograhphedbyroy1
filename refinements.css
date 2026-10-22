@@ -310,3 +310,13 @@ button:disabled { opacity:.45; cursor:wait; }
 .booking-whatsapp-button:hover { background: #194632; color: #fff; }
 .booking-whatsapp-button:focus-visible { outline: 3px solid #589b75; outline-offset: 3px; }
 .booking-whatsapp-option > p:last-child { margin: .75rem 0 0; font-size: .8rem; line-height: 1.6; }
+
+.booking-payment { margin-top: 1.5rem; padding: clamp(1rem, 3vw, 1.75rem); border: 1px solid var(--color-border, #7b725d); border-radius: 14px; background: rgba(176,145,85,.08); }
+.booking-payment[hidden] { display: none; }
+.booking-payment h3 { margin: .5rem 0 1rem; }
+.booking-payment dl { margin: 1.25rem 0; }
+.booking-payment dl > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 1rem; padding: .75rem 0; border-bottom: 1px solid rgba(130,120,100,.25); }
+.booking-payment dt { font-size: .8rem; }
+.booking-payment dd { margin: 0; overflow-wrap: anywhere; font-weight: 600; }
+.payment-account-number { font-size: 1.35rem; letter-spacing: .08em; font-variant-numeric: tabular-nums; user-select: all; }
+.booking-payment-note { font-size: .8rem; line-height: 1.7; }
