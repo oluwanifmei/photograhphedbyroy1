@@ -15,8 +15,9 @@ excludes server source, environment files and customer records.
 
 On the server-free Pages site, booking enquiries open a prefilled WhatsApp
 draft. The visitor must press Send in WhatsApp; the form never claims that a
-booking has been saved or confirmed. Account controls are hidden and old
-account links explain that online account access is not available yet.
+booking has been saved or confirmed. The Account menu stays visible with
+Login, Create account and Admin dashboard links. Until hosting is connected,
+these pages explain availability without collecting unusable credentials.
 The original account/dashboard code and API booking flow remain available
 when deploying the application with the Express server.
 

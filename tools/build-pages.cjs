@@ -23,7 +23,7 @@ function buildPages(siteURL, destination = path.join(root, 'dist'), { backendURL
   for (const route of Object.keys(routes)) {
     write(route === '/' ? 'index.html' : route.slice(1) + '/index.html', renderPage(template, route, site.href, { staticHosting: true, backendURL }));
   }
-  const publicFiles = ['styles.css', 'styles-new.css', 'forms.css', 'refinements.css', 'script.js', 'booking.js', 'config.js', 'auth.js', 'portfolio.js', 'stories.js'];
+  const publicFiles = ['styles.css', 'styles-new.css', 'forms.css', 'refinements.css', 'script.js', 'account-menu.js', 'booking.js', 'config.js', 'auth.js', 'portfolio.js', 'stories.js'];
   for (const name of publicFiles) fs.copyFileSync(path.join(root, name), path.join(output, name));
   write('config.js', fs.readFileSync(path.join(root, 'config.js'), 'utf8').replace("RENDER_BACKEND_URL: '',", 'RENDER_BACKEND_URL: ' + JSON.stringify(backendURL) + ','));
   // Publish photographs and video only; never copy server code, secrets or customer records.
@@ -40,8 +40,15 @@ function buildPages(siteURL, destination = path.join(root, 'dist'), { backendURL
   const home = site.pathname;
   const booking = home + 'book/';
   write('booking.html', `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=${booking}"><title>Book with Roy</title></head><body><a href="${booking}">Continue to booking</a></body></html>`);
-  const accountNotice = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><base href="${home}"><title>Contact Roy | Photographed by Roy</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="forms.css"></head><body><main class="form-page"><h1>Let's plan your session.</h1><p>Online account access is not available yet. You can enquire about a session directly with Roy—no account needed.</p><p><a class="button button-primary" href="${booking}">Plan your session</a></p><p><a href="${home}">← Return to the photographs</a></p></main></body></html>`;
+  const accessPages = {
+    'login.html': { title: 'Login', description: 'Online account access is not available yet. Please try again once the account service is connected. You can still explore the photographs and enquire about a session.' },
+    'signup.html': { title: 'Create account', description: 'Account registration will open when the account service is connected. Planning a session does not require an account.' },
+    'account.html': { title: 'Your account', description: 'Your account and session updates will be available here once the account service is connected.' },
+    'admin.html': { title: 'Admin dashboard', description: 'Owner access only. The private booking dashboard is ready, but its secure online service has not been connected yet. Client records are never displayed on this public page.' }
+  };
   for (const name of ['login.html', 'signup.html', 'account.html', 'admin.html']) {
+    const access = accessPages[name];
+    const accountNotice = `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><base href="${home}"><title>${access.title} | Photographed by Roy</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="forms.css"><link rel="stylesheet" href="refinements.css"></head><body><main class="form-page account-access-page"><div class="form-logo"><a href="${home}" aria-label="Photographed by Roy home"><span class="brand-mark">R.</span></a></div><p class="eyebrow">PHOTOGRAPHED BY ROY / ACCOUNT</p><h1>${access.title}</h1><p class="account-availability" role="status">${access.description}</p><div class="form-actions"><a class="button button-primary" href="${booking}">Plan your session</a><a class="button button-secondary" href="${home}portfolio/">Explore the gallery</a></div><p class="return-home"><a href="${home}">← Return home</a></p></main></body></html>`;
     const redirect = backendURL && `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=${backendURL}/${name}"><meta name="robots" content="noindex"><title>Roy's studio</title></head><body><a href="${backendURL}/${name}">Continue to Roy's studio</a></body></html>`;
     write(name, redirect || accountNotice);
   }

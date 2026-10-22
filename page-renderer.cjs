@@ -35,7 +35,6 @@ function renderPage(html, route, siteURL, { staticHosting = false, backendURL = 
       .replace(/href="#([^"]*)"/g, (_, hash) => `href="${escape(new URL(pageURL).pathname)}#${hash}"`)
       .replace('<head>', `<head>\n<base href="${escape(site.pathname)}" />\n<meta name="roy-static-hosting" content="true" />`);
     if (!backendURL) html = html
-      .replace('<div class="account-dropdown" id="accountDropdown">', '<div class="account-dropdown" id="accountDropdown" style="display:none">')
       .replace('No account or payment needed. Roy will review your request and get back to you by email.', 'No account or payment needed. Continue on WhatsApp to send your details directly to Roy.')
       .replace('Send my request <span', 'Continue on WhatsApp <span');
   }

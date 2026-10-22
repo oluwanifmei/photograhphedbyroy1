@@ -289,3 +289,16 @@ button:disabled { opacity:.45; cursor:wait; }
 }
 
 .home-reveal:focus-within { opacity:1; transform:none; transition:none; }
+
+/* Account access stays visible on desktop and mobile. */
+.account-btn { width:auto; min-width:44px; padding:0 .85rem; gap:.55rem; border-radius:999px; font:600 .76rem 'DM Sans',sans-serif; }
+.account-chevron { width:6px; height:6px; border-right:1px solid currentColor; border-bottom:1px solid currentColor; transform:rotate(45deg) translateY(-2px); }
+.account-menu { min-width:238px; max-width:calc(100vw - 24px); }
+.account-menu-header { margin:0; }
+.account-menu-item small { display:block; margin-top:.2rem; font-size:.69rem; color:var(--muted); }
+.account-btn:focus-visible,.account-menu-item:focus-visible { outline:2px solid var(--accent); outline-offset:3px; }
+.account-availability { color:var(--muted); line-height:1.7; }
+.account-access-page .form-logo { margin-bottom:2rem; }
+.account-access-page h1 { margin-bottom:1rem; }
+.account-access-page .form-actions { margin-top:1.5rem; }
+@media(max-width:540px) { .account-label,.account-chevron { display:none; } .account-btn { padding:0; width:40px; height:40px; } }

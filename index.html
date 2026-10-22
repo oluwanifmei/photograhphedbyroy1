@@ -90,15 +90,20 @@
         <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode"
           title="Toggle light/dark mode">🌙</button>
         <div class="account-dropdown" id="accountDropdown">
-          <button class="account-btn" id="accountBtn" aria-label="Account menu" aria-expanded="false">
-            <svg class="account-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          <button type="button" class="account-btn" id="accountBtn" aria-label="Account menu" aria-controls="accountMenu" aria-expanded="false">
+            <svg aria-hidden="true" class="account-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
               stroke-linecap="round" stroke-linejoin="round">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
             </svg>
+            <span class="account-label">Account</span><span class="account-chevron" aria-hidden="true"></span>
           </button>
           <div class="account-menu" id="accountMenu" aria-hidden="true">
-            <!-- Populated dynamically by script.js -->
+            <p class="account-menu-header">YOUR ACCOUNT</p>
+            <a href="login.html" class="account-menu-item">Login</a>
+            <a href="signup.html" class="account-menu-item">Create account</a>
+            <div class="account-menu-divider"></div>
+            <a href="admin.html" class="account-menu-item">Admin dashboard<small>Owner access only</small></a>
           </div>
         </div>
         <button class="nav-toggle" aria-label="Open navigation menu" aria-controls="primaryNavigation" aria-expanded="false">
@@ -872,6 +877,7 @@
   <script src="auth.js"></script>
   <script src="booking.js"></script>
   <script src="script.js"></script>
+  <script src="account-menu.js"></script>
   <script src="portfolio.js"></script>
   <script src="stories.js"></script>
 </body>

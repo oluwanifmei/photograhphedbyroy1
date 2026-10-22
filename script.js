@@ -779,47 +779,4 @@ setInterval(() => {
 // Initialize admin stats on load
 updateAdminStats();
 
-// ============ ACCOUNT DROPDOWN SYSTEM ============
-const accountBtn = document.getElementById('accountBtn');
-const accountMenu = document.getElementById('accountMenu');
-const accountDropdown = document.getElementById('accountDropdown');
-
-// Toggle dropdown menu
-if (accountBtn && accountMenu) {
-  accountBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    const isExpanded = accountBtn.getAttribute('aria-expanded') === 'true';
-    accountBtn.setAttribute('aria-expanded', !isExpanded);
-    accountMenu.classList.toggle('active');
-    accountMenu.setAttribute('aria-hidden', isExpanded);
-  });
-}
-
-// Close dropdown when clicking outside
-document.addEventListener('click', (e) => {
-  if (accountDropdown && accountMenu && accountBtn) {
-    if (!accountDropdown.contains(e.target)) {
-      accountMenu.classList.remove('active');
-      accountBtn.setAttribute('aria-expanded', 'false');
-      accountMenu.setAttribute('aria-hidden', 'true');
-    }
-  }
-});
-
-// Render dropdown items based on auth state
-const updateAccountDropdown = async () => {
-  if (!accountMenu) return;
-  if (window.APP_CONFIG.STATIC_HOSTING) {
-    accountMenu.innerHTML = '<a href="login.html" class="account-menu-item">Client sign in</a><a href="admin.html" class="account-menu-item">Studio sign in</a>';
-    return;
-  }
-  let user = null;
-  try { user = await RoyAPI.request('/api/me'); } catch {}
-  accountMenu.innerHTML = user
-    ? '<a href="account.html" class="account-menu-item">My account</a>' + (user.isAdmin ? '<a href="admin.html" class="account-menu-item">Admin panel</a>' : '') + '<button class="account-menu-item" id="logoutBtn">Log out</button>'
-    : '<a href="login.html" class="account-menu-item">Log in</a><a href="signup.html" class="account-menu-item">Create account</a>';
-  document.getElementById('logoutBtn')?.addEventListener('click', async () => {
-    try { await RoyAPI.request('/api/logout', { method: 'POST', body: '{}' }); location.reload(); } catch (err) { alert(err.message); }
-  });
-};
-document.addEventListener('DOMContentLoaded', updateAccountDropdown);
+// Account navigation is managed by account-menu.js.

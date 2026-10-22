@@ -25,6 +25,9 @@ test('Pages build preserves photos and resolves every internal page and asset un
     assert.equal((html.match(/<h1[ >]/g) || []).length, 1, route);
     assert.match(html, /<base href="\/photograhphedbyroy1\/"/);
     assert.match(html, /name="roy-static-hosting"/);
+    assert.doesNotMatch(html, /id="accountDropdown" style="display:none"/);
+    assert.match(html, /href="admin.html" class="account-menu-item">Admin dashboard/);
+    assert.match(html, /href="signup.html" class="account-menu-item">Create account/);
     for (const match of html.matchAll(/(?:href|src|data-full)="([^"]+)"/g)) {
       const url = new URL(match[1].replace(/&amp;/g, '&'), site);
       if (url.origin === new URL(site).origin) resolve(url);
