@@ -302,3 +302,11 @@ button:disabled { opacity:.45; cursor:wait; }
 .account-access-page h1 { margin-bottom:1rem; }
 .account-access-page .form-actions { margin-top:1.5rem; }
 @media(max-width:540px) { .account-label,.account-chevron { display:none; } .account-btn { padding:0; width:40px; height:40px; } }
+
+/* Optional booking conversation card. */
+.booking-whatsapp-option { margin-top: 1.25rem; padding: 1.25rem; border: 1px solid rgba(49,110,80,.3); border-radius: 14px; background: rgba(49,110,80,.06); }
+.booking-whatsapp-option .eyebrow { margin: 0 0 .75rem; font-size: .65rem; }
+.booking-whatsapp-button { width: 100%; gap: .6rem; background: #245b43; color: #fff; border: 1px solid #245b43; white-space: normal; text-align: center; line-height: 1.5; }
+.booking-whatsapp-button:hover { background: #194632; color: #fff; }
+.booking-whatsapp-button:focus-visible { outline: 3px solid #589b75; outline-offset: 3px; }
+.booking-whatsapp-option > p:last-child { margin: .75rem 0 0; font-size: .8rem; line-height: 1.6; }

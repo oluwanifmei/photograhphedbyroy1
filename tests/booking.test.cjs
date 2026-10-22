@@ -21,8 +21,21 @@ function page(home = false, inline = false, staticHosting = false, backendURL = 
   context.window.APP_CONFIG.WHATSAPP_NUMBER = '2349025803917';
   context.window.open = url => drafts.push(url);
   vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../booking.js'), 'utf8'), context);
-  return { submit: () => submit({ preventDefault() {} }), alerts, calls, drafts, button, status, get resets() { return resets; }, respond: fn => response = fn };
+  return { submit: (whatsapp = false) => submit({ preventDefault() {}, submitter: { value: whatsapp ? 'whatsapp' : '' } }), alerts, calls, drafts, button, status, get resets() { return resets; }, respond: fn => response = fn };
 }
+
+test('optional WhatsApp action opens a complete draft and still saves the enquiry once', async () => {
+  const p = page(true, true, true, 'https://api.example.com');
+  await p.submit(true);
+  assert.equal(p.calls.length, 1);
+  assert.equal(p.drafts.length, 1);
+  const draft = new URL(p.drafts[0]);
+  assert.equal(draft.pathname, '/2349025803917');
+  assert.match(draft.searchParams.get('text'), /Name: Client/);
+  assert.match(draft.searchParams.get('text'), /Date: 2026-12-01/);
+  assert.match(draft.searchParams.get('text'), /Location: Lagos/);
+  assert.equal(p.status.dataset.state, 'success');
+});
 
 test('both forms save through the configured API and reset only after acknowledgement', async () => {
   for (const home of [true, false]) {
