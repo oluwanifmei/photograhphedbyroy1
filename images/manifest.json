@@ -1174,5 +1174,89 @@
     "src": "images/508abe62c9c7-960.webp",
     "full": "images/508abe62c9c7-1600.webp",
     "srcset": "images/508abe62c9c7-480.webp 480w, images/508abe62c9c7-960.webp 960w, images/508abe62c9c7-1600.webp 1600w"
+  },
+  "images/khadney-birthday-01.jpg": {
+    "width": 960,
+    "height": 1280,
+    "variants": [
+      {
+        "width": 480,
+        "src": "images/khadney-birthday-01-480.webp"
+      },
+      {
+        "width": 960,
+        "src": "images/khadney-birthday-01-960.webp"
+      },
+      {
+        "width": 1600,
+        "src": "images/khadney-birthday-01-1600.webp"
+      }
+    ],
+    "src": "images/khadney-birthday-01-960.webp",
+    "full": "images/khadney-birthday-01-1600.webp",
+    "srcset": "images/khadney-birthday-01-480.webp 480w, images/khadney-birthday-01-960.webp 960w, images/khadney-birthday-01-1600.webp 1600w"
+  },
+  "images/khadney-birthday-02.jpg": {
+    "width": 960,
+    "height": 1437,
+    "variants": [
+      {
+        "width": 480,
+        "src": "images/khadney-birthday-02-480.webp"
+      },
+      {
+        "width": 960,
+        "src": "images/khadney-birthday-02-960.webp"
+      },
+      {
+        "width": 1600,
+        "src": "images/khadney-birthday-02-1600.webp"
+      }
+    ],
+    "src": "images/khadney-birthday-02-960.webp",
+    "full": "images/khadney-birthday-02-1600.webp",
+    "srcset": "images/khadney-birthday-02-480.webp 480w, images/khadney-birthday-02-960.webp 960w, images/khadney-birthday-02-1600.webp 1600w"
+  },
+  "images/khadney-birthday-03.jpg": {
+    "width": 960,
+    "height": 1440,
+    "variants": [
+      {
+        "width": 480,
+        "src": "images/khadney-birthday-03-480.webp"
+      },
+      {
+        "width": 960,
+        "src": "images/khadney-birthday-03-960.webp"
+      },
+      {
+        "width": 1600,
+        "src": "images/khadney-birthday-03-1600.webp"
+      }
+    ],
+    "src": "images/khadney-birthday-03-960.webp",
+    "full": "images/khadney-birthday-03-1600.webp",
+    "srcset": "images/khadney-birthday-03-480.webp 480w, images/khadney-birthday-03-960.webp 960w, images/khadney-birthday-03-1600.webp 1600w"
+  },
+  "images/khadney-birthday-04.jpg": {
+    "width": 960,
+    "height": 1440,
+    "variants": [
+      {
+        "width": 480,
+        "src": "images/khadney-birthday-04-480.webp"
+      },
+      {
+        "width": 960,
+        "src": "images/khadney-birthday-04-960.webp"
+      },
+      {
+        "width": 1600,
+        "src": "images/khadney-birthday-04-1600.webp"
+      }
+    ],
+    "src": "images/khadney-birthday-04-960.webp",
+    "full": "images/khadney-birthday-04-1600.webp",
+    "srcset": "images/khadney-birthday-04-480.webp 480w, images/khadney-birthday-04-960.webp 960w, images/khadney-birthday-04-1600.webp 1600w"
   }
 }

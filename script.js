@@ -112,6 +112,30 @@ window.addEventListener('load', () => {
 
 // Gallery build from uploaded image files
 const galleryData = [
+{
+  "src": "images/khadney-birthday-01.jpg",
+  "category": "birthdays",
+  "title": "Khadney · A chapter in red",
+  "alt": "Khadney in a red double-breasted jacket, black cap and glasses against soft green trees"
+},
+{
+  "src": "images/khadney-birthday-02.jpg",
+  "category": "birthdays",
+  "title": "Khadney · The finishing touch",
+  "alt": "Khadney adjusting sunglasses in a red jacket on a tree-lined road"
+},
+{
+  "src": "images/khadney-birthday-03.jpg",
+  "category": "birthdays",
+  "title": "Khadney · A different perspective",
+  "alt": "An overhead birthday portrait of Khadney in a red jacket beside green grass"
+},
+{
+  "src": "images/khadney-birthday-04.jpg",
+  "category": "birthdays",
+  "title": "Khadney · The quiet closing frame",
+  "alt": "A rear three-quarter portrait of Khadney in a dark suit against softly blurred trees"
+},
   {
     "src": "IMG_8510.JPG.jpeg",
     "category": "portraits",

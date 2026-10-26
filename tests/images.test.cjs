@@ -5,7 +5,7 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 test('all rendered local photographs and responsive variants exist', () => {
   const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-  assert.equal((html.match(/class="portfolio-card"/g) || []).length, 58);
+  assert.equal((html.match(/class="portfolio-card"/g) || []).length, 62);
   for (const match of html.matchAll(/<img [^>]*>/g)) {
     const tag = match[0];
     for (const source of tag.matchAll(/(?:src|data-full)="([^"]+)"/g)) {
@@ -25,3 +25,4 @@ test('booking has four required fields and package links preserve the selection'
   assert.match(form, /id="bookingStatus"/);
   for (const service of ['portrait','wedding','event','fashion','birthday','graduation']) assert.ok(html.includes('/book?package=' + service));
 });
+
