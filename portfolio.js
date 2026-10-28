@@ -21,7 +21,7 @@
   const show = () => { const button = group[current]; image.src = button.dataset.full; image.alt = button.querySelector('img').alt; caption.textContent = button.dataset.title + ' · ' + (current + 1) + ' / ' + group.length; };
   document.querySelectorAll('.portfolio-open').forEach(button => button.addEventListener('click', () => {
     trigger = button;
-    group = [...button.closest('.selected-grid, .gallery-grid').querySelectorAll('.portfolio-card:not([hidden]) .portfolio-open')];
+    group = [...button.closest('.selected-grid, .gallery-grid, .collection-grid').querySelectorAll('.portfolio-card:not([hidden]) .portfolio-open, .collection-frame .portfolio-open')];
     current = group.indexOf(button); show(); dialog.showModal(); document.body.classList.add('viewer-open');
   }));
   const move = delta => { current = (current + delta + group.length) % group.length; show(); };

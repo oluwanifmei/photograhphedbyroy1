@@ -3,6 +3,10 @@ const path = require('path');
 const routes = { '/': 'home', '/portfolio': 'gallery', '/services': 'services', '/before-after': 'before-after', '/stories': 'blog', '/book': 'booking', '/about': 'about', '/contact': 'contact' };
 const titles = { home: 'Portrait & Event Photographer in Lagos & Ibadan', gallery: 'Photography Portfolio', services: 'Photography Sessions & Packages', 'before-after': 'The Editing Process', blog: 'Photography Stories', booking: 'Request a Photography Session', about: 'Meet Oluwanifemi Roy', contact: 'Contact Roy in Lagos & Ibadan' };
 const escape = value => value.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+routes['/collections'] = 'collections';
+routes['/collections/khadney-birthday'] = 'khadneycollection';
+titles.collections = 'Complete Photography Collections';
+titles.khadneycollection = 'Khadney’s Birthday Collection · A Chapter in Red';
 function renderPage(html, route, siteURL, { staticHosting = false, backendURL = '' } = {}) {
   const site = new URL(siteURL.endsWith('/') ? siteURL : siteURL + '/');
   const origin = site.href.replace(/\/$/, '');
@@ -26,6 +30,11 @@ function renderPage(html, route, siteURL, { staticHosting = false, backendURL = 
     html = html.replace('<h1 id="heroTitle">', '<h2 id="heroTitle">').replace('</h1>', '</h2>');
     const sectionStart = html.indexOf(`<section id="page-${page}"`);
     html = html.slice(0, sectionStart) + html.slice(sectionStart).replace('<h2>', '<h1>').replace('</h2>', '</h1>');
+  }
+  if (!staticHosting) {
+    // Nested collection URLs must resolve shared CSS, scripts and photographs at the site root.
+    html = html.replace(/href="#([^"]*)"/g, (_, hash) => `href="${escape(new URL(pageURL).pathname)}#${hash}"`)
+      .replace('<head>', '<head>\n<base href="/" />');
   }
   if (staticHosting) {
     html = html.replace(/href="\/(?!\/)([^"?#]*)([^"\n]*)"/g, (_, pathname, suffix) => {

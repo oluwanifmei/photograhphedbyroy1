@@ -7,6 +7,13 @@ const { routes, renderPage } = require('../page-renderer.cjs');
 const root = path.resolve(__dirname, '..');
 const site = 'https://oluwanifmei.github.io/photograhphedbyroy1/';
 
+test('nested server collections resolve shared assets at the root and retain local anchors', () => {
+  const html = renderPage(fs.readFileSync(path.join(root, 'index.html'), 'utf8'), '/collections/khadney-birthday', 'https://roy.example.com/');
+  assert.match(html, /<base href="\/"/);
+  assert.match(html, /href="\/collections\/khadney-birthday#top"/);
+  assert.match(html, /id="page-khadneycollection" class="page active"/);
+});
+
 test('Pages build preserves photos and resolves every internal page and asset under the repository path', t => {
   const output = path.join(root, '.pages-test');
   assert.ok(output.startsWith(root + path.sep));

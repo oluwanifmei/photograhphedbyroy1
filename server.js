@@ -75,6 +75,7 @@ app.use(require('./page-renderer.cjs'));
 // Serve static files
 const publicFiles = new Set(['index.html', 'booking.html', 'signup.html', 'login.html', 'account.html', 'admin.html', 'styles.css', 'styles-new.css', 'forms.css', 'script.js', 'booking.js', 'signup.js', 'login.js', 'account.js', 'admin.js', 'config.js', 'refinements.css', 'portfolio.js', 'auth.js', 'robots.txt']);
 publicFiles.add('stories.js');
+publicFiles.add('hero-slideshow.js');
 publicFiles.add('account-menu.js');
 const servePublic = express.static(__dirname, { dotfiles: 'deny' });
 app.use((req, res, next) => {
