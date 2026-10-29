@@ -403,18 +403,18 @@ main, .page, .header-inner, .editorial-hero > *, .booking-grid > *, .contact-gri
   .drop-card > img { height: 210px; }
 }
 @media (max-width: 760px) {
-  .editorial-hero { display: flex; flex-direction: column; min-height: 0; color: var(--text); }
-  .hero-editorial-copy { order: 0; align-self: stretch; padding: 2rem 1.25rem; background: var(--bg-top); }
-  .hero-editorial-copy h1 { color: var(--text); font-size: clamp(2.75rem,11vw,4rem); }
-  .hero-editorial-copy .eyebrow { margin-bottom: 1.25rem; line-height: 1.8; }
-  .hero-intro { color: var(--muted); max-width: 34rem; }
-  .hero-editorial-actions { gap: .75rem 1.25rem; align-items: center; }
-  .hero-editorial-actions .hero-text-link { color: var(--text); }
-  .hero-editorial-photo { order: 1; grid-area: auto; min-height: 0; height: clamp(410px,120vw,600px); aspect-ratio: auto; }
-  .hero-editorial-photo > img { object-position: center 30%; }
-  .hero-editorial-photo::after { inset: 65% 0 0; background: linear-gradient(transparent,rgba(0,0,0,.75)); }
-  .hero-editorial-photo figcaption { display: flex; bottom: 1.25rem; gap: .75rem; font-size: .52rem; }
-  .hero-slide-controls { bottom: 3.75rem; left: 1rem; right: 1rem; }
+  .editorial-hero { display: grid; grid-template-columns: minmax(0,1fr); min-height: 650px; color: #f4f7ff; }
+  .hero-editorial-copy { grid-area: 1/1; z-index: 2; align-self: end; padding: 6rem 1.5rem 2.5rem; background: transparent; }
+  .hero-editorial-copy h1 { color: #fff; font-size: clamp(3rem,11vw,4.5rem); }
+  .hero-editorial-copy .eyebrow { margin-bottom: 1.5rem; line-height: 1.8; }
+  .hero-intro { color: #d5d7e2; max-width: 34rem; }
+  .hero-editorial-actions { gap: .5rem 1.25rem; align-items: center; }
+  .hero-editorial-actions .hero-text-link { color: #fff; }
+  .hero-editorial-photo { grid-area: 1/1; min-height: 650px; height: auto; aspect-ratio: auto; }
+  .hero-editorial-photo > img { object-position: 65% 25%; }
+  .hero-editorial-photo::after { inset: 0; background: linear-gradient(180deg,rgba(8,11,19,.08),rgba(8,11,19,.62) 30%,rgba(8,11,19,.95) 80%); }
+  .hero-editorial-photo figcaption { display: none; }
+  .hero-slide-controls { top: 1rem; bottom: auto; left: 1rem; right: 1rem; }
   .hero-slide-controls button { padding-inline: .6rem; font-size: .65rem; }
   .page-header h1, .page-header h2 { font-size: clamp(2rem,9vw,3rem); line-height: 1.15; }
   .simple-booking h2 { font-size: clamp(1.9rem,8vw,2.6rem); }
@@ -435,8 +435,6 @@ main, .page, .header-inner, .editorial-hero > *, .booking-grid > *, .contact-gri
   .drop-card > img { height: auto; aspect-ratio: 4/5; }
 }
 @media (max-width: 380px) {
-  .hero-editorial-actions { align-items: stretch; flex-direction: column; }
-  .hero-editorial-actions .button { justify-content: space-between; }
   .hero-slide-controls { gap: .4rem; }
   .hero-slide-controls button { min-width: 40px; padding-inline: .4rem; }
 }
