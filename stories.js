@@ -42,3 +42,16 @@ if (requestedCategory) {
     frame.remove();
   });
 })();
+
+// A quiet reveal of each new edit; no motion or hidden content without browser support.
+(() => {
+  const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (preference.matches || !('IntersectionObserver' in window)) return;
+  const items = [...document.querySelectorAll('.page.active .drop-card, .page.active .collection-frame, .page.active .collection-cover, .page.active .story-chapter-heading, .page.active .latest-session-layout')];
+  const observer = new IntersectionObserver(entries => entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    entry.target.classList.add('studio-in-view'); observer.unobserve(entry.target);
+  }), { threshold: .08 });
+  items.forEach((item, index) => { item.style.setProperty('--studio-delay', `${index % 4 * 55}ms`); item.classList.add('studio-reveal'); observer.observe(item); });
+  preference.addEventListener('change', event => { if (!event.matches) return; observer.disconnect(); items.forEach(item => item.classList.add('studio-in-view')); });
+})();
