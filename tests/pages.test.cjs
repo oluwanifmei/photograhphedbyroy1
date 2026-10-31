@@ -64,3 +64,18 @@ test('static root domains and nested story anchors retain their own paths', () =
   assert.match(html, /href="\/stories\/#colour-of-confidence"/);
   assert.match(html, /href="\/book\/\?package=portrait"/);
 });
+
+test('share previews use reachable absolute JPEG paths on server and repository hosting', () => {
+  const template = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+  for (const [site, staticHosting] of [['https://roy.example.com/', false], ['https://oluwanifmei.github.io/photograhphedbyroy1/', true]]) {
+    const html = renderPage(template, '/', site, { staticHosting });
+    const expected = site + 'images/roy-homepage-preview.jpg';
+    for (const name of ['og:image', 'og:image:secure_url', 'twitter:image']) {
+      const tag = html.match(new RegExp('<meta (?:property|name)="' + name + '" content="([^"]+)"'));
+      assert.equal(tag[1], expected);
+    }
+    assert.match(html, /property="og:image:type" content="image\/jpeg"/);
+    assert.match(html, /property="og:image:width" content="1600"/);
+    assert.ok(fs.existsSync(path.join(root, 'images/roy-homepage-preview.jpg')));
+  }
+});

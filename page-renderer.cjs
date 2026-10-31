@@ -17,7 +17,8 @@ function renderPage(html, route, siteURL, { staticHosting = false, backendURL = 
     .replace(/(<section id="page-([^"]+)" class=")page(?: active)?"/g, (_, prefix, id) => prefix + 'page' + (id === page ? ' active' : '') + '"')
     .replace(/<title>[^<]*<\/title>/, `<title>${titles[page]} | Photographed by Roy</title>`)
     .replace('</head>', `<link rel="canonical" href="${escape(pageURL)}" />\n<meta property="og:url" content="${escape(pageURL)}" />\n</head>`)
-    .replace('content="images/hero-1600.webp"', `content="${escape(origin)}/images/hero-1600.webp"`)
+    .replace(/(<meta (?:property|name)="(?:og:image|og:image:secure_url|twitter:image)" content=")[^"]+("\s*\/>)/g, (_, before, after) => before + escape(origin + '/images/roy-homepage-preview.jpg') + after)
+    .replace(/<meta name="twitter:title"[^>]+>/, `<meta name="twitter:title" content="${escape(titles[page])} | Photographed by Roy" />`)
     .replace(/<meta property="og:title"[^>]+>/, `<meta property="og:title" content="${titles[page]} | Photographed by Roy" />`);
   html = html.replace(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/, (_, json) => {
     const business = JSON.parse(json);
@@ -51,7 +52,7 @@ function renderPage(html, route, siteURL, { staticHosting = false, backendURL = 
 }
 
 module.exports = function pages(req, res, next) {
-  const origin = new URL(process.env.SITE_URL || process.env.FRONTEND_URL || process.env.RENDER_EXTERNAL_URL || `${req.protocol}://${req.get('host')}`).origin;
+  const origin = new URL(process.env.SITE_URL || process.env.RENDER_EXTERNAL_URL || `${req.protocol}://${req.get('host')}`).origin;
   if (req.path === '/robots.txt') return res.type('text').send(`User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /admin.html\nDisallow: /account.html\nDisallow: /login.html\nDisallow: /signup.html\nSitemap: ${origin}/sitemap.xml\n`);
   if (req.path === '/sitemap.xml') return res.type('application/xml').send('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + Object.keys(routes).map(route => `<url><loc>${escape(origin + route)}</loc></url>`).join('') + '</urlset>');
   if (!['GET', 'HEAD'].includes(req.method)) return next();
