@@ -447,3 +447,32 @@ main, .page, .header-inner, .editorial-hero > *, .booking-grid > *, .contact-gri
 .studio-reveal { opacity: 0; transform: translateY(18px); transition: opacity .65s ease, transform .65s cubic-bezier(.2,.7,.3,1); transition-delay: var(--studio-delay,0ms); }
 .studio-reveal.studio-in-view, .studio-reveal:focus-within { opacity: 1; transform: translateY(0); }
 @media (prefers-reduced-motion: reduce) { .studio-reveal { opacity: 1; transform: none; transition: none; } }
+
+/* A personal welcome, isolated from the existing page layout. */
+.roy-welcome { width: min(760px,calc(100% - 2rem)); max-height: calc(100dvh - 2rem); padding: 0; border: 1px solid #89734e; border-radius: 16px; color: #f4f3ef; background: #11151e; box-shadow: 0 24px 100px #0009; overflow: auto; }
+.roy-welcome[open] { display: grid; grid-template-columns: .9fr 1.1fr; animation: welcome-arrive .5s ease both; }
+.roy-welcome::backdrop { background: #080b15b8; backdrop-filter: blur(5px); }
+.roy-welcome-close { position: absolute; top: 12px; right: 12px; z-index: 2; width: 40px; height: 40px; border: 1px solid #ffffff40; border-radius: 50%; background: #11151ed9; color: #fff; font-size: 26px; cursor: pointer; }
+.roy-welcome-photo { position: relative; min-width: 0; overflow: hidden; }
+.roy-welcome-photo img { width: 100%; height: 100%; min-height: 430px; object-fit: cover; object-position: 50% 50%; display: block; }
+.roy-welcome-photo::after { content: ''; position: absolute; inset: 16px; border: 1px solid #e9c88a80; pointer-events: none; animation: welcome-frame 3s ease-in-out 2; }
+.roy-welcome-photo span { position: absolute; bottom: 28px; left: 28px; right: 28px; font-size: .55rem; letter-spacing: .18em; color: white; text-shadow: 0 1px 8px #000; }
+.roy-welcome-copy { padding: 38px 30px 28px; min-width: 0; }
+.roy-welcome-copy .eyebrow { font-size: .58rem; color: #e9c88a; letter-spacing: .16em; margin: 0 0 18px; }
+.roy-welcome-copy h2 { font-family: Georgia,serif; font-size: clamp(2rem,4vw,2.8rem); line-height: 1.12; font-weight: 400; margin: 0 0 20px; color: #fff; }
+.roy-welcome-copy h2 em { color: #e9c88a; }
+.roy-welcome-copy p { font-size: .87rem; line-height: 1.75; color: #cdd0da; margin-bottom: 16px; }
+.roy-welcome-copy .button { font-size: .8rem; margin-top: 6px; }
+.roy-welcome-preference { display: flex; align-items: center; gap: 9px; margin-top: 22px; color: #b6bac7; font-size: .72rem; cursor: pointer; }
+.roy-welcome-preference input { width: 16px; height: 16px; accent-color: #e9c88a; flex: 0 0 auto; }
+.roy-welcome :focus-visible { outline: 2px solid #e9c88a; outline-offset: 4px; }
+@keyframes welcome-arrive { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes welcome-frame { 50% { border-color: #e9c88aff; } }
+@media (max-width: 600px) {
+ .roy-welcome[open] { grid-template-columns: minmax(0,1fr); }
+ .roy-welcome-photo { height: 180px; }
+ .roy-welcome-photo img { min-height: 0; object-position: 50% 48%; }
+ .roy-welcome-copy { padding: 24px; }
+ .roy-welcome-copy h2 { font-size: 2rem; }
+}
+@media (prefers-reduced-motion: reduce) { .roy-welcome[open], .roy-welcome-photo::after { animation: none; } .roy-welcome::backdrop { backdrop-filter: none; } }

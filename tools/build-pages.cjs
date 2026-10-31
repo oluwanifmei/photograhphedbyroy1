@@ -24,7 +24,7 @@ function buildPages(siteURL, destination = path.join(root, 'dist'), { backendURL
     write(route === '/' ? 'index.html' : route.slice(1) + '/index.html', renderPage(template, route, site.href, { staticHosting: true, backendURL }));
   }
   const publicFiles = ['styles.css', 'styles-new.css', 'forms.css', 'refinements.css', 'script.js', 'account-menu.js', 'booking.js', 'config.js', 'auth.js', 'portfolio.js', 'stories.js'];
-  publicFiles.push('hero-slideshow.js');
+  publicFiles.push('hero-slideshow.js', 'welcome.js');
   for (const name of publicFiles) fs.copyFileSync(path.join(root, name), path.join(output, name));
   write('config.js', fs.readFileSync(path.join(root, 'config.js'), 'utf8').replace("RENDER_BACKEND_URL: '',", 'RENDER_BACKEND_URL: ' + JSON.stringify(backendURL) + ','));
   // Publish photographs and video only; never copy server code, secrets or customer records.
