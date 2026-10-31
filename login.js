@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('loginForm');
   form.addEventListener('submit', async event => {
     event.preventDefault(); const button = form.querySelector('[type="submit"]'); button.disabled = true;
-    try { await RoyAPI.request('/api/login', { method: 'POST', body: JSON.stringify({ email: document.getElementById('email').value.trim(), password: document.getElementById('password').value }) }); location.href = 'account.html'; }
+    try { await RoyAPI.request('/api/login', { method: 'POST', body: JSON.stringify({ email: document.getElementById('email').value.trim(), password: document.getElementById('password').value }) }); location.href = window.RoyGalleryReturn?.next || 'account.html'; }
     catch (err) { alert(err.message); } finally { button.disabled = false; }
   });
   document.getElementById('resendVerification').addEventListener('click', async event => {

@@ -28,6 +28,11 @@ test('Pages build preserves photos and resolves every internal page and asset un
   for (const [route, page] of Object.entries(routes)) {
     const file = route === '/' ? 'index.html' : route.slice(1) + '/index.html';
     const html = fs.readFileSync(path.join(output, file), 'utf8');
+    if (require('../gallery-access.cjs').isPrivateRoute(route)) {
+      assert.match(html, /Sign in to view the gallery/);
+      assert.doesNotMatch(html, /class="portfolio-open"|id="page-gallery"|id="page-khadneycollection"/);
+      continue;
+    }
     assert.match(html, new RegExp(`id="page-${page}" class="page active"`));
     assert.equal((html.match(/<h1[ >]/g) || []).length, 1, route);
     assert.match(html, /<base href="\/photograhphedbyroy1\/"/);

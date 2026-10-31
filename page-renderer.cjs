@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { isPrivateRoute, stripPrivatePages, collectionGate } = require('./gallery-access.cjs');
 const routes = { '/': 'home', '/portfolio': 'gallery', '/services': 'services', '/before-after': 'before-after', '/stories': 'blog', '/book': 'booking', '/about': 'about', '/contact': 'contact' };
 const titles = { home: 'Portrait & Event Photographer in Lagos & Ibadan', gallery: 'Photography Portfolio', services: 'Photography Sessions & Packages', 'before-after': 'The Editing Process', blog: 'Photography Stories', booking: 'Request a Photography Session', about: 'Meet Oluwanifemi Roy', contact: 'Contact Roy in Lagos & Ibadan' };
 const escape = value => value.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -37,6 +38,7 @@ function renderPage(html, route, siteURL, { staticHosting = false, backendURL = 
     html = html.replace(/href="#([^"]*)"/g, (_, hash) => `href="${escape(new URL(pageURL).pathname)}#${hash}"`)
       .replace('<head>', '<head>\n<base href="/" />');
   }
+  if (staticHosting && isPrivateRoute(route)) return collectionGate(route, backendURL);
   if (staticHosting) {
     html = html.replace(/href="\/(?!\/)([^"?#]*)([^"\n]*)"/g, (_, pathname, suffix) => {
         const target = '/' + pathname;
@@ -48,18 +50,18 @@ function renderPage(html, route, siteURL, { staticHosting = false, backendURL = 
       .replace('No account or payment needed. Roy will review your request and get back to you by email.', 'No account or payment needed. Continue on WhatsApp to send your details directly to Roy.')
       .replace('Send my request <span', 'Continue on WhatsApp <span');
   }
-  return html;
+  return staticHosting ? stripPrivatePages(html) : html;
 }
 
 module.exports = function pages(req, res, next) {
   const origin = new URL(process.env.SITE_URL || process.env.RENDER_EXTERNAL_URL || `${req.protocol}://${req.get('host')}`).origin;
   if (req.path === '/robots.txt') return res.type('text').send(`User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /admin.html\nDisallow: /account.html\nDisallow: /login.html\nDisallow: /signup.html\nSitemap: ${origin}/sitemap.xml\n`);
-  if (req.path === '/sitemap.xml') return res.type('application/xml').send('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + Object.keys(routes).map(route => `<url><loc>${escape(origin + route)}</loc></url>`).join('') + '</urlset>');
+  if (req.path === '/sitemap.xml') return res.type('application/xml').send('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">' + Object.keys(routes).filter(route => !isPrivateRoute(route)).map(route => `<url><loc>${escape(origin + route)}</loc></url>`).join('') + '</urlset>');
   if (!['GET', 'HEAD'].includes(req.method)) return next();
-  const route = req.path === '/index.html' ? '/' : req.path;
+  const route = req.path === '/index.html' ? '/' : req.path.replace(/\/+$/, '') || '/';
   const page = routes[route];
   if (!page) return next();
-  res.type('html').send(renderPage(fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8'), route, origin));
+  res.type('html').send(renderPage(req.galleryAccess ? fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8') : stripPrivatePages(fs.readFileSync(path.join(__dirname, 'index.html'), 'utf8')), route, origin));
 };
 module.exports.renderPage = renderPage;
 module.exports.routes = routes;

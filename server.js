@@ -72,6 +72,15 @@ app.use('/api', (req, res, next) => {
   next();
 });
 
+app.use(asyncRoute(async (req, res, next) => {
+  if (!require('./gallery-access.cjs').isPrivateRoute(req.path)) return next();
+  res.setHeader('Cache-Control', 'private, no-store'); res.vary('Cookie'); res.vary('Authorization');
+  const token = (req.headers.authorization || '').replace(/^Bearer /, '');
+  const payload = token && await verifyToken(token);
+  const user = payload && ((await loadData()).users || []).find(user => user.id === payload.id);
+  if (!user || !user.emailConfirmed) return res.redirect(302, '/login.html?next=' + encodeURIComponent(req.originalUrl));
+  req.galleryAccess = true; next();
+}));
 app.use(require('./page-renderer.cjs'));
 
 // Serve static files
@@ -79,6 +88,7 @@ const publicFiles = new Set(['index.html', 'booking.html', 'signup.html', 'login
 publicFiles.add('stories.js');
 publicFiles.add('hero-slideshow.js');
 publicFiles.add('welcome.js');
+publicFiles.add('gallery-return.js');
 publicFiles.add('analytics.js');
 publicFiles.add('admin-analytics.js');
 publicFiles.add('account-menu.js');

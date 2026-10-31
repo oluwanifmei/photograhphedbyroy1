@@ -139,15 +139,14 @@ test('production sessions use Secure cookies and explicitly allowed cross-site o
   assert.equal(response.headers.get('access-control-allow-credentials'), 'true');
 });
 
-test('public pages have crawlable portfolio markup, canonical links and sitemap', async t => {
+test('public homepage remains crawlable while private galleries require login', async t => {
   const { base } = await start(t, { SITE_URL: 'https://roy.example.com' });
-  const html = await (await fetch(base + '/portfolio')).text();
-  assert.match(html, /data-initial-page="gallery"/);
-  assert.match(html, /rel="canonical" href="https:\/\/roy.example.com\/portfolio"/);
-  assert.match(html, /id="page-gallery" class="page active"/);
-  assert.equal((html.match(/<h1[ >]/g) || []).length, 1);
-  assert.match(html, /class="portfolio-open"/);
-  assert.match(await (await fetch(base + '/sitemap.xml')).text(), /https:\/\/roy.example.com\/portfolio/);
+  const html = await (await fetch(base + '/')).text();
+  assert.match(html, /data-initial-page="home"/);
+  assert.doesNotMatch(html, /id="page-gallery"|id="page-collections"|id="page-khadneycollection"/);
+  const response = await fetch(base + '/portfolio', { redirect: 'manual' });
+  assert.equal(response.status,302); assert.equal(response.headers.get('location'),'/login.html?next=%2Fportfolio');
+  assert.doesNotMatch(await (await fetch(base + '/sitemap.xml')).text(), /https:\/\/roy.example.com\/(portfolio|collections)/);
   assert.match(await (await fetch(base + '/robots.txt')).text(), /Disallow: \/api\//);
 });
 

@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
       })
       .then((data) => {
         alert(data.message || 'Registered successfully.');
-        window.location.href = 'login.html';
+        window.location.href = window.RoyGalleryReturn?.login || 'login.html';
       })
       .catch((err) => {
         alert(err && err.error ? err.error : 'Unable to reach the server. Please try again.');
