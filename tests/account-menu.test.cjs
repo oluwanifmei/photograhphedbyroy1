@@ -18,9 +18,11 @@ async function menuFor({ staticHosting = false, user = null } = {}) {
   await new Promise(setImmediate);
   return { menu, listeners, attributes, get focused() { return focused; }, get active() { return active; }, get calls() { return calls; } };
 }
-test('public account menu contains all requested links and supports Escape and outside clicks', async () => {
+test('public account menu hides owner access and supports Escape and outside clicks', async () => {
   const item = await menuFor({ staticHosting: true });
-  for (const label of ['Login', 'Create account', 'Admin dashboard']) assert.match(item.menu.innerHTML, new RegExp(label));
+  for (const label of ['Login', 'Create account']) assert.match(item.menu.innerHTML, new RegExp(label));
+  assert.doesNotMatch(item.menu.innerHTML, /Admin dashboard|href="admin.html"/);
+  assert.doesNotMatch((await menuFor()).menu.innerHTML, /Admin dashboard|href="admin.html"/);
   assert.equal(item.calls, 0);
   item.listeners['button:click'](); assert.equal(item.active, true); assert.equal(item.attributes['aria-hidden'], 'false');
   item.listeners.keydown({ key: 'Escape' }); assert.equal(item.active, false); assert.equal(item.focused, true);
