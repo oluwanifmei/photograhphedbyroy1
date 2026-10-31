@@ -11,8 +11,18 @@
     <button type="submit" class="button button-primary">Open dashboard →</button>
   </form>
   <div id="adminWorkspace" hidden>
+    <section class="studio-analytics" aria-labelledby="audienceTitle">
+      <div class="work-heading"><div><p class="eyebrow">AUDIENCE &amp; ACTIVITY</p><h2 id="audienceTitle">Who is finding your work?</h2></div><div class="analytics-tools"><label for="analyticsDays">Reporting period (UTC)</label><select id="analyticsDays"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option></select><button type="button" class="button button-secondary" id="analyticsRefresh">Refresh activity</button><button type="button" class="button button-secondary" id="analyticsExport" disabled>Export daily records CSV ↗</button></div></div>
+      <p id="analyticsNotice" role="status">Loading audience records…</p>
+      <div class="studio-metrics analytics-metrics"><article><span>WEBSITE VISITS</span><strong id="analyticsVisits">—</strong><small>Estimated browsing sessions</small></article><article><span>PAGE VIEWS</span><strong id="analyticsViews">—</strong><small>Includes repeat page loads</small></article><article><span>NEW CLIENT ACCOUNTS</span><strong id="analyticsAccounts">—</strong><small>Registrations during this period</small></article><article><span>BOOKING ENQUIRIES</span><strong id="analyticsEnquiries">—</strong><small>Saved requests during this period</small></article></div>
+      <p class="analytics-explanation">Visits are anonymous browser sessions, not a count of individual people. A session renews after 30 minutes of inactivity; separate tabs or devices may count separately. Reloads add page views. Privacy settings, blockers and bots can affect totals. Browsing is not linked to client accounts.</p>
+      <div class="analytics-breakdowns"><section><h3>Most viewed pages</h3><ul id="analyticsPages"></ul></section><section><h3>Enquiry intent</h3><ul id="analyticsActions"></ul><small>Clicks show intent; WhatsApp and email clicks do not prove a message was sent.</small></section><section><h3>Screen sizes</h3><ul id="analyticsDevices"></ul></section><section><h3>Page view sources</h3><ul id="analyticsSources"></ul><small>Based on the referring page when the browser provides it.</small></section></div>
+      <details class="analytics-history"><summary>Daily records — visits, views, accounts &amp; enquiries</summary><div class="studio-table-wrap"><table class="studio-table"><thead><tr><th>Date (UTC)</th><th>Visits</th><th>Page views</th><th>New accounts</th><th>Enquiries</th></tr></thead><tbody id="analyticsDaily"></tbody></table></div></details>
+      <p id="analyticsLifetime" class="analytics-explanation"></p><p id="analyticsBusiness" class="analytics-explanation"></p>
+    </section>
+    <h2>Booking pipeline · all time</h2><p>Submitting a request creates an enquiry. Only appointments you mark confirmed are confirmed bookings.</p>
     <section class="studio-metrics" aria-label="Studio summary">
-      <article><span>ALL ENQUIRIES</span><strong id="metricTotal">—</strong></article><article><span>AWAITING REVIEW</span><strong id="metricPending">—</strong></article><article><span>CONFIRMED</span><strong id="metricConfirmed">—</strong></article><article><span>CLIENT ACCOUNTS</span><strong id="metricClients">—</strong></article>
+      <article><span>ALL ENQUIRIES</span><strong id="metricTotal">—</strong></article><article><span>AWAITING REVIEW</span><strong id="metricPending">—</strong></article><article><span>CONFIRMED APPOINTMENTS</span><strong id="metricConfirmed">—</strong></article><article><span>REGISTERED CLIENTS</span><strong id="metricClients">—</strong></article>
     </section>
     <section class="studio-bookings" aria-labelledby="bookingsTitle"><div class="work-heading"><div><p class="eyebrow">THE NEXT CHAPTER</p><h2 id="bookingsTitle">Booking enquiries</h2></div><button type="button" id="exportBookings" class="button button-secondary">Export CSV ↗</button></div>
       <form id="adminFilters" class="studio-filters"><div><label for="bookingSearch">Search clients or sessions</label><input id="bookingSearch" type="search" placeholder="Name, email, session or notes"></div><div><label for="bookingStatusFilter">Status</label><select id="bookingStatusFilter"><option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select></div><button class="button button-primary" type="submit">Apply filters</button><button class="button button-secondary" type="button" id="refreshBookings">Refresh</button></form>
@@ -21,4 +31,4 @@
     </section>
     <details class="studio-clients"><summary>Registered clients</summary><ul id="signupList"></ul></details>
   </div>
-</main><script src="config.js"></script><script src="auth.js"></script><script src="admin.js"></script></body></html>
+</main><script src="config.js"></script><script src="auth.js"></script><script src="admin-analytics.js"></script><script src="admin.js"></script></body></html>

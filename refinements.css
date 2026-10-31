@@ -476,3 +476,22 @@ main, .page, .header-inner, .editorial-hero > *, .booking-grid > *, .contact-gri
  .roy-welcome-copy h2 { font-size: 2rem; }
 }
 @media (prefers-reduced-motion: reduce) { .roy-welcome[open], .roy-welcome-photo::after { animation: none; } .roy-welcome::backdrop { backdrop-filter: none; } }
+
+.studio-analytics { border: 1px solid var(--border); padding: clamp(1rem,3vw,2rem); margin: 2rem 0 3rem; background: var(--surface); }
+.analytics-tools { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; max-width: 100%; }
+.analytics-tools label { font-size: .75rem; color: var(--muted); }
+.analytics-tools select { padding: .7rem; color: var(--text); background: var(--bg-top); border: 1px solid var(--border); }
+.analytics-metrics { margin: 1.5rem 0; }
+.analytics-metrics article { min-width: 0; }
+.analytics-metrics strong { font-size: clamp(2rem,4vw,3.2rem); overflow-wrap: anywhere; }
+.analytics-metrics small, .analytics-breakdowns small { display: block; color: var(--muted); font-size: .72rem; line-height: 1.6; }
+.analytics-explanation, #analyticsNotice { color: var(--muted); font-size: .8rem; line-height: 1.8; }
+.analytics-breakdowns { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 1.5rem; margin: 2rem 0; }
+.analytics-breakdowns section { min-width: 0; border-top: 1px solid var(--border); padding-top: 1rem; }
+.analytics-breakdowns h3 { font-size: 1rem; margin-bottom: 1rem; }
+.analytics-breakdowns ul { list-style: none; padding: 0; margin: 0 0 1rem; }
+.analytics-breakdowns li { display: flex; justify-content: space-between; gap: 1rem; padding: .5rem 0; color: var(--muted); font-size: .8rem; }
+.analytics-breakdowns li span { overflow-wrap: anywhere; }
+.analytics-breakdowns strong { color: var(--accent); }
+.analytics-history summary { cursor: pointer; padding: 1rem 0; font-size: .9rem; }
+@media(max-width:600px) { .analytics-breakdowns { grid-template-columns: minmax(0,1fr); } .analytics-tools { align-items: stretch; flex-direction: column; } .studio-analytics .work-heading { display: block; } .analytics-tools { margin-top: 1rem; } }

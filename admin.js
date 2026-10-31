@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderRows(bookings.items); $('bookingPage').textContent = total ? `Page ${page} of ${Math.ceil(total / limit)} · ${total} enquiries` : 'No enquiries yet';
       $('adminWorkspace').hidden = false; $('adminLoginForm').hidden = true; $('adminLogout').hidden = false;
       notice('');
+      if (typeof RoyAdminAnalytics !== 'undefined') RoyAdminAnalytics.refresh();
     } catch (err) {
       if (version !== loadVersion) return;
       notice(err.status === 401 ? 'Sign in to access your studio.' : err.status === 403 ? 'This account needs verified owner access. Sign in with the owner account.' : err.message, err.status !== 401);

@@ -13,6 +13,8 @@ const PORT = process.env.PORT || 3000;
 if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL && !process.env.DATABASE_FILE && !process.env.DATA_FILE) throw new Error('Set DATABASE_URL or a path on persistent storage before starting production.');
 const storage = createStorage();
 app.locals.storage = storage;
+const analytics = require('./analytics-store.cjs').createAnalytics();
+app.locals.analytics = analytics;
 const asyncRoute = handler => async (req, res, next) => {
   for (let attempt = 0; attempt < 20; attempt++) {
     try { return await handler(req, res, next); }
@@ -77,6 +79,8 @@ const publicFiles = new Set(['index.html', 'booking.html', 'signup.html', 'login
 publicFiles.add('stories.js');
 publicFiles.add('hero-slideshow.js');
 publicFiles.add('welcome.js');
+publicFiles.add('analytics.js');
+publicFiles.add('admin-analytics.js');
 publicFiles.add('account-menu.js');
 const servePublic = express.static(__dirname, { dotfiles: 'deny' });
 app.use((req, res, next) => {
@@ -330,11 +334,48 @@ function adminAuth(req, res, next) {
   })(req, res, next);
 }
 
+// Minimal anonymous browsing events live separately from customer records.
+const visitLimits = new Map();
+const publicPages = new Set(['/', '/portfolio', '/services', '/before-after', '/stories', '/book', '/about', '/contact', '/collections', '/login', '/signup']);
+app.post('/api/analytics/event', asyncRoute(async (req, res) => {
+  if (!req.headers.origin || (!allowedOrigins.has(req.headers.origin) && req.headers.origin !== req.protocol + '://' + req.get('host'))) return res.sendStatus(403);
+  if (/bot|spider|crawler|headless|preview/i.test(req.headers['user-agent'] || '') || req.headers.dnt === '1' || req.headers['sec-gpc'] === '1') return res.sendStatus(204);
+  const now = Date.now();
+  for (const [key, value] of visitLimits) if (value.until <= now) visitLimits.delete(key);
+  let limit = visitLimits.get(req.ip);
+  if (!limit) { if (visitLimits.size >= 10000) return res.sendStatus(429); limit = { count: 0, until: now + 900000 }; visitLimits.set(req.ip, limit); }
+  if (++limit.count > 120) return res.sendStatus(429);
+  const { id, session, page, kind, device, source } = req.body || {};
+  const uuid = value => typeof value === 'string' && /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(value);
+  if (!uuid(id) || !uuid(session) || !publicPages.has(page) || !['pageview','whatsapp','booking_open','email'].includes(kind) || !['mobile','tablet','desktop'].includes(device)) return res.status(400).json({ error: 'Invalid analytics event.' });
+  const host = typeof source === 'string' ? source.slice(0,120).toLowerCase() : '';
+  const category = host === 'direct' ? 'Direct / internal' : /(^|\.)(google\.[a-z.]+|bing.com|duckduckgo.com)$/.test(host) ? 'Search' : /(^|\.)(instagram.com|facebook.com|t.co|tiktok.com|pinterest.com)$/.test(host) ? 'Social' : 'Other referral';
+  await analytics.record({ id, session, page, kind, device, source: category, at: new Date().toISOString() });
+  res.sendStatus(204);
+}));
+app.get('/api/admin/analytics', adminAuth, asyncRoute(async (req, res) => {
+  const days = Number(req.query.days || 30);
+  if (![7,30,90].includes(days)) return res.status(400).json({ error: 'Choose 7, 30 or 90 days.' });
+  const report = await analytics.report(days);
+  const data = await loadData();
+  const users = (data.users || []).filter(user => !isOwner(user));
+  const accounts = (data.signups || []).filter(signup => users.some(user => user.email.toLowerCase() === signup.email.toLowerCase()));
+  const bookings = data.bookings || [];
+  const recent = bookings.filter(booking => booking.createdAt?.slice(0,10) >= report.start);
+  report.business = { registered: users.length, newAccounts: accounts.filter(account => account.createdAt?.slice(0,10) >= report.start).length, enquiries: recent.length, bookingClients: new Set(recent.map(booking => (booking.email || booking.userId || booking.id).toLowerCase())).size, confirmed: bookings.filter(booking => booking.status === 'confirmed').length, completed: bookings.filter(booking => booking.status === 'completed').length, cancelled: bookings.filter(booking => booking.status === 'cancelled').length };
+  const existing = new Map(report.daily.map(row => [row.day,row]));
+  report.daily = Array.from({ length: days }, (_,index) => {
+    const date = new Date(report.start + 'T00:00:00Z'); date.setUTCDate(date.getUTCDate() + index); const day = date.toISOString().slice(0,10);
+    return { day, views: existing.get(day)?.views || 0, visits: existing.get(day)?.visits || 0, accounts: accounts.filter(account => account.createdAt?.slice(0,10) === day).length, enquiries: bookings.filter(booking => booking.createdAt?.slice(0,10) === day).length };
+  }).reverse();
+  res.json(report);
+}));
+
 // Protected admin endpoints
 app.get('/api/admin/summary', adminAuth, asyncRoute(async (req, res) => {
   const data = await loadData();
   const bookings = data.bookings || [];
-  res.json({ total: bookings.length, pending: bookings.filter(b => b.status === 'pending').length, confirmed: bookings.filter(b => b.status === 'confirmed').length, clients: (data.users || []).length });
+  res.json({ total: bookings.length, pending: bookings.filter(b => b.status === 'pending').length, confirmed: bookings.filter(b => b.status === 'confirmed').length, clients: (data.users || []).filter(user => !isOwner(user)).length });
 }));
 
 app.use('/api/admin', (req, res, next) => {
@@ -496,7 +537,7 @@ if (require.main === module) {
     console.log(`Server listening on http://localhost:${PORT}`);
   });
   const shutdown = () => {
-    listener.close(async () => { await storage.close(); process.exit(0); });
+    listener.close(async () => { await analytics.close(); await storage.close(); process.exit(0); });
     setTimeout(() => process.exit(1), 10000).unref();
   };
   process.once('SIGTERM', shutdown);
