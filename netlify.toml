@@ -5,6 +5,7 @@
 
 [build.environment]
   NODE_VERSION = "24"
+  PNPM_FLAGS = "--shamefully-hoist"
 
 [functions]
   node_bundler = "zisi"
