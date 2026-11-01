@@ -1,0 +1,21 @@
+[build]
+  command = "node tools/build-netlify.cjs"
+  publish = "dist-netlify"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "24"
+
+[functions]
+  node_bundler = "zisi"
+  included_files = ["*.html", "*.js", "*.cjs"]
+
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/studio/:splat"
+  status = 200
+
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"

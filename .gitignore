@@ -5,6 +5,8 @@ data.json.tmp
 .env.*
 !.env.example
 dist/
+dist-netlify/
+.netlify/
 .pages-test/
 data/
 *.sqlite
