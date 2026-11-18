@@ -3,7 +3,7 @@
   try {
     const value = new URLSearchParams(location.search).get('next') || '';
     const target = new URL(value, location.origin);
-    if (value.startsWith('/') && !value.startsWith('//') && target.origin === location.origin && ['/portfolio','/collections','/collections/khadney-birthday'].includes(target.pathname.replace(/\/$/,''))) next = target.pathname + target.search + (target.hash || (/^#[a-z0-9-]+$/i.test(location.hash || '') ? location.hash : ''));
+    if (value.startsWith('/') && !value.startsWith('//') && target.origin === location.origin && ['/portfolio','/collections','/collections/khadney-birthday','/collections/abdul-hamid-graduation'].includes(target.pathname.replace(/\/$/,''))) next = target.pathname + target.search + (target.hash || (/^#[a-z0-9-]+$/i.test(location.hash || '') ? location.hash : ''));
   } catch {}
   window.RoyGalleryReturn = { next, login: 'login.html' + (next ? '?next=' + encodeURIComponent(next) : '') };
   document.addEventListener('DOMContentLoaded', () => {

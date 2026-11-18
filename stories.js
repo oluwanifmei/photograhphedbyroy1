@@ -55,3 +55,15 @@ if (requestedCategory) {
   items.forEach((item, index) => { item.style.setProperty('--studio-delay', `${index % 4 * 55}ms`); item.classList.add('studio-reveal'); observer.observe(item); });
   preference.addEventListener('change', event => { if (!event.matches) return; observer.disconnect(); items.forEach(item => item.classList.add('studio-in-view')); });
 })();
+
+// Reveal graduation editorials once, with no motion for reduced-motion visitors.
+(() => {
+ const preference = matchMedia('(prefers-reduced-motion: reduce)');
+ if (preference.matches || !('IntersectionObserver' in window)) return;
+ const elements = [...document.querySelectorAll('.page.active .graduation-drop-copy, .page.active .graduation-editorial, .page.active .graduation-story-sequence figure, .page.active .graduation-cover')];
+ const observer = new IntersectionObserver(entries => entries.forEach(entry => {
+  if (entry.isIntersecting) { entry.target.classList.add('is-visible'); observer.unobserve(entry.target); }
+ }), {threshold:.08});
+ elements.forEach(element => { element.classList.add('graduation-reveal'); observer.observe(element); });
+ preference.addEventListener('change', () => { if (preference.matches) { observer.disconnect(); elements.forEach(element=>element.classList.add('is-visible')); } });
+})();

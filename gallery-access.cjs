@@ -1,4 +1,4 @@
-const privatePages = new Set(['gallery', 'collections', 'khadneycollection']);
+const privatePages = new Set(['gallery', 'collections', 'khadneycollection', 'graduationcollection']);
 function isPrivateRoute(route) { return /^\/(portfolio|collections)(\/|$)/.test(route); }
 function stripPrivatePages(html) {
   for (const id of privatePages) {

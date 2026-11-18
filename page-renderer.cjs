@@ -4,6 +4,8 @@ const { isPrivateRoute, stripPrivatePages, collectionGate } = require('./gallery
 const routes = { '/': 'home', '/portfolio': 'gallery', '/services': 'services', '/before-after': 'before-after', '/stories': 'blog', '/book': 'booking', '/about': 'about', '/contact': 'contact' };
 const titles = { home: 'Portrait & Event Photographer in Lagos & Ibadan', gallery: 'Photography Portfolio', services: 'Photography Sessions & Packages', 'before-after': 'The Editing Process', blog: 'Photography Stories', booking: 'Request a Photography Session', about: 'Meet Oluwanifemi Roy', contact: 'Contact Roy in Lagos & Ibadan' };
 const escape = value => value.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+routes['/collections/abdul-hamid-graduation'] = 'graduationcollection';
+titles.graduationcollection = 'Abdul-Hamid · University of Ibadan Graduation 2025';
 routes['/collections'] = 'collections';
 routes['/collections/khadney-birthday'] = 'khadneycollection';
 titles.collections = 'Complete Photography Collections';

@@ -495,3 +495,49 @@ main, .page, .header-inner, .editorial-hero > *, .booking-grid > *, .contact-gri
 .analytics-breakdowns strong { color: var(--accent); }
 .analytics-history summary { cursor: pointer; padding: 1rem 0; font-size: .9rem; }
 @media(max-width:600px) { .analytics-breakdowns { grid-template-columns: minmax(0,1fr); } .analytics-tools { align-items: stretch; flex-direction: column; } .studio-analytics .work-heading { display: block; } .analytics-tools { margin-top: 1rem; } }
+
+/* Abdul-Hamid / University of Ibadan graduation editorial */
+.graduation-drop { padding-top: clamp(3rem,7vw,7rem); padding-bottom: 3rem; }
+.graduation-drop-heading,.graduation-drop-footer { display:flex; align-items:center; justify-content:space-between; gap:1.5rem; }
+.graduation-stamp { border:1px solid #bc9c63; border-radius:999px; padding:.65rem 1rem; font-size:.65rem; letter-spacing:.13em; white-space:nowrap; }
+.graduation-drop-layout { display:grid; grid-template-columns:1fr 1fr; align-items:center; gap:clamp(2rem,6vw,6rem); padding:3rem 0; }
+.graduation-drop-copy { min-width:0; }
+.graduation-drop-copy h2 { font-family:var(--font-serif); font-weight:400; font-size:clamp(2.4rem,4.7vw,5rem); line-height:1.08; margin:1.4rem 0; letter-spacing:-.035em; }
+.graduation-drop-copy h2 em { color:#bc9c63; }
+.graduation-drop-copy > p { line-height:1.8; max-width:38rem; }
+.graduation-credentials { border-left:2px solid #bc9c63; padding-left:1rem; font-size:.78rem; line-height:1.9; letter-spacing:.035em; margin:1.5rem 0; }
+.graduation-actions { display:flex; flex-wrap:wrap; align-items:center; gap:1.4rem; margin-top:1.8rem; }
+.graduation-editorial { position:relative; min-width:0; padding:0 18% 13% 0; }
+.graduation-lead,.graduation-detail { display:block; position:relative; color:white; text-decoration:none; }
+.graduation-lead { border:1px solid #bc9c6360; padding:.6rem; background:#101c31; box-shadow:0 24px 60px #0003; transform:rotate(-2deg); }
+.graduation-editorial img { display:block; width:100%; height:auto; }
+.graduation-lead > span { display:block; padding:.8rem .35rem .3rem; font-size:.6rem; letter-spacing:.12em; }
+.graduation-detail { position:absolute; width:45%; right:0; bottom:0; border:.5rem solid #101c31; box-shadow:0 14px 35px #0004; transform:rotate(4deg); transition:transform .45s ease; }
+.graduation-detail > span { display:block; padding:.7rem .25rem; background:#101c31; font-size:.52rem; letter-spacing:.1em; }
+.graduation-edition { position:absolute; writing-mode:vertical-rl; top:1rem; right:4%; font-size:.6rem; letter-spacing:.22em; color:var(--muted); }
+.graduation-drop-footer { padding:1.4rem 0; border-top:1px solid #bc9c6350; font-size:.65rem; letter-spacing:.12em; }
+.graduation-drop-footer a { color:inherit; letter-spacing:.02em; line-height:1.7; }
+.graduation-cover { padding-bottom:4rem; margin-bottom:4rem; border-bottom:1px solid #bc9c6340; }
+.graduation-story-intro { max-width:760px; margin:0 0 2.5rem auto; line-height:1.9; }
+.graduation-story-sequence { grid-template-columns:repeat(3,minmax(0,1fr)); align-items:start; }
+.graduation-story-sequence img { aspect-ratio:auto; height:auto; }
+.graduation-collection { grid-template-columns:repeat(3,minmax(0,1fr)); }
+@media (hover:hover) { .graduation-detail:hover { transform:rotate(0) translateY(-6px); } .graduation-lead { transition:transform .45s ease; } .graduation-lead:hover { transform:rotate(0); } }
+@media (max-width:900px) { .graduation-drop-layout { gap:1.8rem; } .graduation-drop-copy h2 { font-size:clamp(2rem,4.6vw,3.4rem); } }
+@media (max-width:600px) {
+ .graduation-drop-heading { align-items:flex-start; gap:.7rem; } .graduation-drop-heading .eyebrow { max-width:55%; line-height:1.8; }
+ .graduation-stamp { font-size:.52rem; padding:.55rem .7rem; }
+ .graduation-drop-layout { grid-template-columns:1fr; padding-top:1.5rem; gap:2rem; }
+ .graduation-drop-copy h2 { font-size:clamp(2.7rem,10vw,4rem); }
+ .graduation-editorial { max-width:440px; width:100%; margin:auto; }
+ .graduation-drop-footer { align-items:flex-start; flex-direction:column; gap:.6rem; }
+ .graduation-story-sequence,.graduation-collection { grid-template-columns:1fr; }
+ .graduation-story-sequence figure { max-width:520px; margin-inline:auto; }
+ .graduation-actions .button { width:100%; text-align:center; }
+}
+@media (prefers-reduced-motion:no-preference) {
+ .graduation-stamp { animation:graduationGlow 5s ease-in-out infinite; }
+ .graduation-reveal { opacity:0; transform:translateY(24px); transition:opacity .75s ease,transform .75s cubic-bezier(.2,.7,.3,1); }
+ .graduation-reveal.is-visible { opacity:1; transform:translateY(0); }
+ @keyframes graduationGlow { 50% { box-shadow:0 0 24px #bc9c6324; } }
+}
